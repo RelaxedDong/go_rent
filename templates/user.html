@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/css/index.css">
+</head>
+<body>
+<!--.上下文的作用-->
+<!--{{.name}}-->
+<!--{{.user.Name}}/{{.user.Id}}/{{.user.Age}}-->
+<!--{{.arrs}}-->
+
+{{range $i,$v := .users}}
+    <p class="sy">{{$i}}/({{$v.Id}}/{{$v.Name}}/{{$v.Age}})</p>
+{{end}}
+</body>
+</html>
