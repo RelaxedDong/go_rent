@@ -13,3 +13,14 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+
+# Django stuff:
+*.log
+target/
+.idea/*
+media/*

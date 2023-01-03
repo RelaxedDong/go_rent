@@ -1,7 +1,8 @@
 package account
 
 import (
-	"encoding/json"
+	"fmt"
+	"github.com/gookit/validate"
 	"rent_backend/controllers"
 	_ "rent_backend/models"
 )
@@ -15,12 +16,14 @@ func (request *AccountController) Get() {
 }
 
 func (request *AccountController) Post() {
-	RequestBody := request.Ctx.Input.RequestBody
-	var body Login
-	err := json.Unmarshal(RequestBody, &body)
-	if err != nil {
-		request.RestFulParamsError(map[string]interface{}{}, "json解析错误: "+err.Error())
+	var req Login
+	request.RequestJsonFormat(&req)
+	// 参数校验
+	v := validate.Struct(req)
+	if !v.Validate() {
+		request.RestFulParamsError("参数校验: " + v.Errors.One())
 	}
+	fmt.Println("body", req)
 	data := map[string]interface{}{
 		"token":            "",
 		"user_id":          1,
