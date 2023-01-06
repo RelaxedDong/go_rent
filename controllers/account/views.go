@@ -9,17 +9,13 @@ import (
 	"rent_backend/utils/jwt"
 )
 
-type AccountController struct {
+type Controller struct {
 	controllers.BaseController
 }
 
-func (request *AccountController) Get() {
-
-}
-
-func (request *AccountController) Post() {
+func (request *Controller) Login() {
 	var req Login
-	var data map[string]interface{}
+	data := make(map[string]interface{})
 	request.RequestJsonFormat(&req)
 	openId, errMsg := weixin.GetUserOpenidAndSessionKey(req.Code)
 	fmt.Println("openId", openId)
@@ -38,4 +34,10 @@ func (request *AccountController) Post() {
 	// todo: is_superuser, finish_user_info字段舍弃？
 	data["user_id"] = account.Id
 	request.RestFulSuccess(data, "")
+}
+
+func (request *Controller) UserInfo() {
+	account := request.Ctx.Input.GetData("WxUser")
+	fmt.Println(account)
+	request.RestFulSuccess(make(map[string]interface{}), "")
 }

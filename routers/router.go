@@ -3,8 +3,11 @@ package routers
 import (
 	"github.com/astaxie/beego"
 	"rent_backend/controllers/account"
+	"rent_backend/middleware"
 )
 
 func init() {
-	beego.Router("/api/account/login", &account.AccountController{})
+	middleware.CheckLogin()
+	beego.Router("/api/account/login", &account.Controller{}, "Post:Login")
+	beego.Router("/api/account/user_info", &account.Controller{}, "Post:UserInfo")
 }
