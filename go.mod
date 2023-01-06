@@ -5,6 +5,7 @@ go 1.17
 require github.com/astaxie/beego v1.12.3
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/gookit/validate v1.4.6
 	github.com/smartystreets/goconvey v1.6.4

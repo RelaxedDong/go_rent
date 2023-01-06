@@ -1,8 +1,7 @@
 package account
 
 type Login struct {
-	Code int    `json:"code" validate:"required|minLen:3" message:"minLen: code 长度不能小于3"`
-	Name string `json:"name" validate:"required|minLen:3" message:"minLen: name 长度不能小于3"`
+	Code string `json:"code" validate:"required"`
 }
 
 // Messages 您可以自定义验证器错误消息

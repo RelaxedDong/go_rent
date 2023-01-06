@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"github.com/astaxie/beego"
+	"github.com/gookit/validate"
 	"rent_backend/consts"
 )
 
@@ -10,11 +11,16 @@ type BaseController struct {
 	beego.Controller
 }
 
-func (req *BaseController) RequestJsonFormat(v interface{}) {
-	// 这里只会判断类型，因为需要把json数据解析到结构体里面，而后面校验使用gookit/validate做校验
-	err := json.Unmarshal(req.Ctx.Input.RequestBody, v)
+func (req *BaseController) RequestJsonFormat(structBody interface{}) {
+	// 这里只会判断类型，因为需要把json数据解析到结构体里面
+	err := json.Unmarshal(req.Ctx.Input.RequestBody, structBody)
 	if e, ok := err.(*json.UnmarshalTypeError); ok {
 		req.RestFulParamsError(e.Field + "(" + e.Type.String() + ")" + " 字段类型错误 ->" + e.Value)
+	}
+	// 使用gookit/validate做校验
+	v := validate.Struct(structBody)
+	if !v.Validate() {
+		req.RestFulParamsError(v.Errors.One())
 	}
 }
 
