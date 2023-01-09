@@ -1,8 +1,8 @@
 package account
 
 import (
-	"fmt"
 	"rent_backend/controllers"
+	accountform "rent_backend/controllers/account/form"
 	UserDbManager "rent_backend/controllers/account/manager/db_manager"
 	_ "rent_backend/models"
 	"rent_backend/third_party_service/weixin"
@@ -14,11 +14,10 @@ type Controller struct {
 }
 
 func (request *Controller) Login() {
-	var req Login
+	var req accountform.LoginForm
 	data := make(map[string]interface{})
 	request.RequestJsonFormat(&req)
 	openId, errMsg := weixin.GetUserOpenidAndSessionKey(req.Code)
-	fmt.Println("openId", openId)
 	if errMsg != "" {
 		request.RestFulParamsError(errMsg)
 	}
@@ -36,8 +35,17 @@ func (request *Controller) Login() {
 	request.RestFulSuccess(data, "")
 }
 
-func (request *Controller) UserInfo() {
-	account := request.Ctx.Input.GetData("WxUser")
-	fmt.Println(account)
+// BindUserInfo 这里是用户点击授权绑定处理，如果当前用户是第一次授权绑定，则创建一个新用户
+func (request *Controller) BindUserInfo() {
+	WxUser := request.Ctx.Input.GetData("WxUser")
+	// 不存在就创建一个用户
+	if WxUser == nil {
+		// 断言值是给定的类型
+		OpenId := request.Ctx.Input.GetData("openId").(string)
+		var req accountform.UserInfoForm
+		req.OpenId = OpenId
+		request.RequestJsonFormat(&req)
+		UserDbManager.GetOrCreateUser(req)
+	}
 	request.RestFulSuccess(make(map[string]interface{}), "")
 }

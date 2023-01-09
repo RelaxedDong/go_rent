@@ -1,16 +1,18 @@
-package account
+package accountform
 
-type Login struct {
+type LoginForm struct {
 	Code string `json:"code" validate:"required"`
 }
 
-type UserInfo struct {
-	NickName  string `json:"nickName"`
-	Gender    string `json:"gender"`
+type UserInfoForm struct {
+	NickName string `json:"nickName"`
+	// 0: 未知 1：男 2：女
+	Gender    uint8  `json:"gender" validate:"min:0|max:2"`
 	AvatarUrl string `json:"avatarUrl"`
 	Province  string `json:"province"`
 	City      string `json:"city"`
 	Phone     string `json:"phone"`
+	OpenId    string `json:"OpenId"`
 }
 
 // Messages 您可以自定义验证器错误消息

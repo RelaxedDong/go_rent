@@ -9,5 +9,5 @@ import (
 func init() {
 	middleware.CheckLogin()
 	beego.Router("/api/account/login", &account.Controller{}, "Post:Login")
-	beego.Router("/api/account/user_info", &account.Controller{}, "Post:UserInfo")
+	beego.Router("/api/account/user_info", &account.Controller{}, "Post:BindUserInfo")
 }

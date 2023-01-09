@@ -24,4 +24,4 @@ coverage.xml
 target/
 .idea/*
 media/*
-conf
+conf/*

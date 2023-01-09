@@ -12,7 +12,7 @@ import (
 
 var IgnoreLoginRequired = []string{
 	"/api/account/login",
-	"/api/account/edit_info",
+	"/api/account/user_info",
 	"/api/house/index",
 	"/api/house/selects",
 	"/api/house/banners",
@@ -23,6 +23,7 @@ func CheckLogin() {
 	var login = func(ctx *context.Context) {
 		if JwtToken := ctx.Input.Header("token"); JwtToken != "" {
 			if Claims, parseTokenErr := jwt.ParseToken(JwtToken); parseTokenErr == nil {
+				ctx.Input.SetData("openId", Claims.OpenId)
 				if account, userError := UserDbManager.GetUserByOpenId(Claims.OpenId); userError == nil {
 					// 给context对象绑定一个 AccountModel 对象，便于在视图里面直接获取到
 					ctx.Input.SetData("WxUser", account)
