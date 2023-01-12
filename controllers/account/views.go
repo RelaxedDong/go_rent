@@ -4,6 +4,7 @@ import (
 	"rent_backend/controllers"
 	accountform "rent_backend/controllers/account/form"
 	UserDbManager "rent_backend/controllers/account/manager/db_manager"
+	"rent_backend/models"
 	_ "rent_backend/models"
 	"rent_backend/third_party_service/weixin"
 	"rent_backend/utils/jwt"
@@ -38,6 +39,7 @@ func (request *Controller) Login() {
 // BindUserInfo 这里是用户点击授权绑定处理，如果当前用户是第一次授权绑定，则创建一个新用户
 func (request *Controller) BindUserInfo() {
 	WxUser := request.Ctx.Input.GetData("WxUser")
+	var UserId int64
 	// 不存在就创建一个用户
 	if WxUser == nil {
 		// 断言值是给定的类型
@@ -45,7 +47,32 @@ func (request *Controller) BindUserInfo() {
 		var req accountform.UserInfoForm
 		req.OpenId = OpenId
 		request.RequestJsonFormat(&req)
-		UserDbManager.GetOrCreateUser(req)
+		UserId = UserDbManager.GetOrCreateUser(req)
+	} else {
+		UserId = WxUser.(models.AccountModel).Id
 	}
-	request.RestFulSuccess(make(map[string]interface{}), "")
+	request.RestFulSuccess(map[string]interface{}{"user_id": UserId}, "")
+}
+
+func (request *Controller) UserInfo() {
+	WxUser := request.GetWxUser()
+	request.RestFulSuccess(map[string]interface{}{
+		"nickname":  WxUser.NickName,
+		"avatarUrl": WxUser.AvatarUrl,
+		"wechat":    WxUser.Wechat,
+		"phone":     WxUser.Phone,
+		"gender":    WxUser.Gender,
+	}, "")
+}
+
+func (request *Controller) BindUserPhone() {
+	// todo: 通过微信api直接按钮拿到phone
+}
+
+func (request *Controller) EditUserInfo() {
+	WxUser := request.GetWxUser()
+	var req accountform.EditUserInfoForm
+	request.RequestJsonFormat(&req)
+	UserDbManager.UpdateUserInfo(WxUser, req.Wechat, req.Phone)
+	request.RestFulSuccess(map[string]interface{}{}, "")
 }

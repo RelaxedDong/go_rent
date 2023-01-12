@@ -20,7 +20,7 @@ func GetUserByOpenId(openId string) (user models.AccountModel, err error) {
 	return user, nil
 }
 
-func GetOrCreateUser(userInfo accountform.UserInfoForm) {
+func GetOrCreateUser(userInfo accountform.UserInfoForm) (UserId int64) {
 	user := models.AccountModel{
 		OpenId:    userInfo.OpenId,
 		NickName:  userInfo.NickName,
@@ -32,5 +32,20 @@ func GetOrCreateUser(userInfo accountform.UserInfoForm) {
 		LastLogin: time.Now(),
 	}
 	// 是否是新创建的，创建的id，错误
-	_, _, _ = models.OrmManager.ReadOrCreate(&user, "OpenId")
+	_, UserId, _ = models.OrmManager.ReadOrCreate(&user, "OpenId")
+	return UserId
+}
+
+func UpdateUserInfo(userInfo models.AccountModel, wechat string, phone string) {
+	user := models.AccountModel{Id: userInfo.Id}
+	var updatedFields []string
+	if wechat != "" {
+		user.Wechat = wechat
+		updatedFields = append(updatedFields, "wechat")
+	}
+	if phone != "" {
+		user.Phone = phone
+		updatedFields = append(updatedFields, "phone")
+	}
+	models.OrmManager.Update(&user, updatedFields...)
 }

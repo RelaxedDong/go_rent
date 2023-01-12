@@ -5,6 +5,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/gookit/validate"
 	"rent_backend/consts"
+	"rent_backend/models"
 )
 
 type BaseController struct {
@@ -22,6 +23,11 @@ func (self *BaseController) RequestJsonFormat(structBody interface{}) {
 	if !v.Validate() {
 		self.RestFulParamsError(v.Errors.One())
 	}
+}
+
+func (self *BaseController) GetWxUser() (user models.AccountModel) {
+	user = self.Ctx.Input.GetData("WxUser").(models.AccountModel)
+	return user
 }
 
 func (self *BaseController) WriteResponse(data interface{}, msg string, defaultCode int, customCode ...int) {

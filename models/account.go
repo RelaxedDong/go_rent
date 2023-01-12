@@ -9,7 +9,7 @@ import (
 
 type AccountModel struct {
 	// https://segmentfault.com/a/1190000041558761?sort=votes
-	Id        int    `orm:"pk;auto"`
+	Id        int64  `orm:"pk;auto"`
 	OpenId    string `orm:"size(50);unique;column(openid)"`
 	NickName  string `orm:"size(100);column(nickname)"`
 	AvatarUrl string `orm:"size(255);column(avatar_url)"`
