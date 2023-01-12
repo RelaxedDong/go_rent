@@ -2,6 +2,8 @@ package house
 
 import (
 	"rent_backend/controllers"
+	"rent_backend/controllers/house/manager/db_manager"
+	"rent_backend/controllers/house/manager/view_manager"
 	"rent_backend/utils"
 )
 
@@ -35,4 +37,10 @@ func (request *Controller) CityListConf() {
 		})
 	}
 	request.RestFulSuccess(map[string]interface{}{"city_list": CityList}, "")
+}
+
+func (request *Controller) HouseIndex() {
+	city := request.Input().Get("city")
+	houses := db_manager.GetHouseByQuery(city, "-is_delicate", 10, 0)
+	request.RestFulSuccess(map[string]interface{}{"houses": view_manager.GetHouseListInfo(houses)}, "")
 }

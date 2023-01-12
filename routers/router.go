@@ -13,5 +13,7 @@ func init() {
 	beego.Router("/api/account/user_info", &account.Controller{}, "Post:BindUserInfo")
 	beego.Router("/api/account/edit_info", &account.Controller{}, "Get:UserInfo")
 	beego.Router("/api/account/edit_info", &account.Controller{}, "Post:EditUserInfo")
+	// house
 	beego.Router("/api/house/city_conf", &house.Controller{}, "Get:CityListConf")
+	beego.Router("/api/house/index", &house.Controller{}, "Get:HouseIndex")
 }
