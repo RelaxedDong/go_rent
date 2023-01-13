@@ -16,4 +16,5 @@ func init() {
 	// house
 	beego.Router("/api/house/city_conf", &house.Controller{}, "Get:CityListConf")
 	beego.Router("/api/house/index", &house.Controller{}, "Get:HouseIndex")
+	beego.Router("/api/house/detail/:house_id([0-9]+)", &house.Controller{}, "Get:HouseDetail")
 }

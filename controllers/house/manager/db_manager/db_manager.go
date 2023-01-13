@@ -15,3 +15,9 @@ func GetHouseByQuery(city string, orderBy string, limit int, offset int) (houses
 	_, _ = qs.Filter("city__exact", city).Limit(limit, offset).All(&houses)
 	return houses
 }
+
+func GetHouseById(id int64) (house models.HouseModel, err error) {
+	qs := models.OrmManager.QueryTable(house)
+	err = qs.Filter("id__exact", id).One(&house)
+	return house, err
+}

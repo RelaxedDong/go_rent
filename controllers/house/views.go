@@ -1,35 +1,22 @@
 package house
 
 import (
+	"rent_backend/consts"
 	"rent_backend/controllers"
 	"rent_backend/controllers/house/manager/db_manager"
 	"rent_backend/controllers/house/manager/view_manager"
 	"rent_backend/utils"
+	"strconv"
 )
 
 type Controller struct {
 	controllers.BaseController
 }
 
-var CityMap = map[string]string{
-	"北京": "北京市",
-	"上海": "上海市",
-	"广州": "广东省",
-	"深圳": "广东省",
-	"杭州": "浙江省",
-	"成都": "四川省",
-	"武汉": "湖北省",
-	"长沙": "湖南省",
-	"郑州": "河南省",
-	"西安": "陕西省",
-	"天津": "天津省",
-	"厦门": "福建省",
-}
-var CityImageUrl = "https://img.donghao.club/conf/city/{city}.png"
-
 func (request *Controller) CityListConf() {
 	var CityList []map[string]string
-	for city, province := range CityMap {
+	var CityImageUrl = "https://img.donghao.club/conf/city/{city}.png"
+	for city, province := range consts.CityMap {
 		CityList = append(CityList, map[string]string{
 			"province": province,
 			"city":     city + "市",
@@ -42,5 +29,19 @@ func (request *Controller) CityListConf() {
 func (request *Controller) HouseIndex() {
 	city := request.Input().Get("city")
 	houses := db_manager.GetHouseByQuery(city, "-is_delicate", 10, 0)
-	request.RestFulSuccess(map[string]interface{}{"houses": view_manager.GetHouseListInfo(houses)}, "")
+	request.RestFulSuccess(map[string]interface{}{"house": view_manager.GetHouseListInfo(houses)}, "")
+}
+
+func (request *Controller) HouseDetail() {
+	HouseIdString := request.Ctx.Input.Param(":house_id")
+	HouseId, _ := strconv.ParseInt(HouseIdString, 10, 64)
+	HouseInfo, err := db_manager.GetHouseById(HouseId)
+	if err != nil {
+		request.RestFulParamsError("房源不存在...", consts.STATUS_CODE_404)
+	}
+	Info := view_manager.BuildHouseInfo(HouseInfo)
+	request.RestFulSuccess(map[string]interface{}{
+		"house":           Info,
+		"facilities_list": consts.FacilityMap,
+	}, "")
 }
