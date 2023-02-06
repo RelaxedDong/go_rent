@@ -1,9 +1,13 @@
 package account
 
 import (
+	"fmt"
+	"rent_backend/consts"
 	"rent_backend/controllers"
 	accountform "rent_backend/controllers/account/form"
 	UserDbManager "rent_backend/controllers/account/manager/db_manager"
+	"rent_backend/controllers/house/manager/db_manager"
+	"rent_backend/controllers/house/manager/view_manager"
 	"rent_backend/models"
 	_ "rent_backend/models"
 	"rent_backend/third_party_service/weixin"
@@ -15,10 +19,11 @@ type Controller struct {
 }
 
 func (request *Controller) Login() {
+
 	var req accountform.LoginForm
 	data := make(map[string]interface{})
 	request.RequestJsonFormat(&req)
-	openId, errMsg := weixin.GetUserOpenidAndSessionKey(req.Code)
+	openId, SessionKey, errMsg := weixin.GetUserOpenidAndSessionKey(req.Code)
 	if errMsg != "" {
 		request.RestFulParamsError(errMsg)
 	}
@@ -31,8 +36,9 @@ func (request *Controller) Login() {
 	if userError != nil {
 		request.RestFulSuccess(map[string]interface{}{"token": jwtToken}, userError.Error())
 	}
-	// todo: is_superuser, finish_user_info字段舍弃？
 	data["user_id"] = account.Id
+	UserDbManager.UpdateUserInfo(account, "", "", SessionKey)
+	// todo: is_superuser, finish_user_info字段舍弃？
 	request.RestFulSuccess(data, "")
 }
 
@@ -47,7 +53,7 @@ func (request *Controller) BindUserInfo() {
 		var req accountform.UserInfoForm
 		req.OpenId = OpenId
 		request.RequestJsonFormat(&req)
-		UserId = UserDbManager.GetOrCreateUser(req)
+		_, UserId = UserDbManager.GetOrCreateUser(req)
 	} else {
 		UserId = WxUser.(models.AccountModel).Id
 	}
@@ -55,7 +61,8 @@ func (request *Controller) BindUserInfo() {
 }
 
 func (request *Controller) UserInfo() {
-	WxUser := request.GetWxUser()
+	request.LoginRequired()
+	_, WxUser := request.GetWxUser()
 	request.RestFulSuccess(map[string]interface{}{
 		"nickname":  WxUser.NickName,
 		"avatarUrl": WxUser.AvatarUrl,
@@ -70,9 +77,83 @@ func (request *Controller) BindUserPhone() {
 }
 
 func (request *Controller) EditUserInfo() {
-	WxUser := request.GetWxUser()
+	request.LoginRequired()
+	_, WxUser := request.GetWxUser()
 	var req accountform.EditUserInfoForm
 	request.RequestJsonFormat(&req)
-	UserDbManager.UpdateUserInfo(WxUser, req.Wechat, req.Phone)
+	UserDbManager.UpdateUserInfo(WxUser, req.Wechat, req.Phone, "")
 	request.RestFulSuccess(map[string]interface{}{}, "")
+}
+
+func (request *Controller) Operation() {
+	// 数据==管理操作
+	request.LoginRequired()
+	_, WxUser := request.GetWxUser()
+	var req accountform.OperationForm
+	request.RequestJsonFormat(&req)
+	if req.OperationType == "collect" {
+		HouseInfo, err := db_manager.GetHouseById(req.HouseId)
+		if err != nil {
+			request.RestFulParamsError("房源不存在...", consts.STATUS_CODE_404)
+		}
+		isNew, RecordId := UserDbManager.GetOrCreateUserFavor(HouseInfo, WxUser)
+		if !isNew {
+			UserDbManager.DeleteCollectRecordDb(RecordId)
+		}
+	}
+	request.RestFulSuccess(map[string]interface{}{}, "")
+}
+
+func (request *Controller) BindPhone() {
+	request.LoginRequired()
+	_, WxUser := request.GetWxUser()
+	var req accountform.BindPhoneForm
+	request.RequestJsonFormat(&req)
+	phone, err := weixin.DecryptPhone(req.EncryptedData, req.Iv, WxUser.SessionKey)
+	if err != nil {
+		request.RestFulParamsError(err.Error())
+	}
+	UserDbManager.UpdateUserInfo(WxUser, "", phone, "")
+	request.RestFulSuccess(map[string]interface{}{"phone": phone}, "")
+}
+
+func (request *Controller) Collects() {
+	// 获取历史记录与收藏
+	request.LoginRequired()
+	_, WxUser := request.GetWxUser()
+	opType := request.GetString("op_type")
+	start, _ := request.GetStartEndByPage(consts.DefaultPageSize)
+	var houses []models.HouseModel
+	switch opType {
+	case "collect":
+		houses, _ = UserDbManager.GetUserCollects(WxUser.Id, start, consts.DefaultPageSize)
+	case "history":
+		houses, _ = UserDbManager.GetUserHistoryList(WxUser.Id, start, consts.DefaultPageSize)
+	}
+	request.RestFulSuccess(map[string]interface{}{"houses": view_manager.GetHouseListInfo(houses)}, "")
+}
+
+func (request *Controller) OperationDelete() {
+	// 获取历史记录与收藏
+	request.LoginRequired()
+	_, WxUser := request.GetWxUser()
+	var req accountform.OperationDeleteForm
+	request.RequestJsonFormat(&req)
+	var houses []models.HouseModel
+	fmt.Println("req.OperationType", req.OperationType, req.HouseId)
+	switch req.OperationType {
+	case "collect":
+		if req.HouseId != 0 {
+			UserDbManager.DeleteUserCollectRecord(req.HouseId, WxUser.Id)
+		} else {
+			UserDbManager.DeleteAllCollectsByUserId(WxUser)
+		}
+	case "history":
+		if req.HouseId != 0 {
+			UserDbManager.DeleteHistoryRecordDb(req.HouseId, WxUser.Id)
+		} else {
+			UserDbManager.DeleteAllHistoryByUserId(WxUser)
+		}
+	}
+	request.RestFulSuccess(map[string]interface{}{"houses": view_manager.GetHouseListInfo(houses)}, "")
 }

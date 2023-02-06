@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 	"time"
@@ -9,8 +8,8 @@ import (
 
 type BaseModel struct {
 	// https://segmentfault.com/a/1190000041558761?sort=votes
-	CreatedTime time.Time `orm:"auto_now_add;type(datetime)"`
-	UpdatedTime time.Time `orm:"auto_now;type(datetime)"`
+	CreatedTime  time.Time `orm:"auto_now_add;type(datetime)"`
+	LastModified time.Time `orm:"auto_now;type(datetime)"`
 }
 
 type AccountModel struct {
@@ -18,16 +17,18 @@ type AccountModel struct {
 	Id        int64  `orm:"pk;auto"`
 	OpenId    string `orm:"size(50);unique;column(openid)"`
 	NickName  string `orm:"size(100);column(nickname)"`
-	AvatarUrl string `orm:"size(255);column(avatar_url)"`
+	AvatarUrl string `orm:"size(255);column(avatarUrl)"`
 	Country   string `orm:"size(30);"`
 	Province  string `orm:"size(30);"`
 	City      string `orm:"size(30);"`
 	Gender    string `orm:"size(1);default(0)"`
 	Status    string `orm:"size(1);default(0)"`
 
-	SessionKey time.Time `orm:"type(datetime);null"`
-	Phone      string    `orm:"size(11);null;default()"`
-	Wechat     string    `orm:"size(50);null;default()"`
+	SessionKey   string `orm:"size(100);"`
+	Phone        string `orm:"size(11);null;default()"`
+	Wechat       string `orm:"size(50);null;default()"`
+	FromPlatform string `orm:"size(50);null;default(weixin)"`
+	IsAdminUser  bool   `orm:"default(false)"`
 
 	LastLogin time.Time `orm:"type(datetime)"`
 }
@@ -52,6 +53,7 @@ type HouseModel struct {
 	Storey    uint8  `orm:"null"`
 	Longitude string
 	Latitude  string
+	Price     uint32
 	//状态相关
 	ShowPhone bool   `orm:"default(true)"`
 	ViewCount uint32 `orm:"null"`
@@ -69,20 +71,58 @@ type HouseModel struct {
 	BaseModel
 }
 
+type BannerModel struct {
+	BaseModel
+	Id       int64  `orm:"pk;auto"`
+	Url      string `orm:"size(255);column(url)"`
+	Navigate string `orm:"size(200);null"`
+	Desc     string `orm:"size(200);"`
+	// banner\icon\card
+	Position  string `orm:"size(30);default(banner)"`
+	IsShow    bool
+	Publisher *AccountModel `orm:"rel(fk)"`
+	Priority  uint8         `orm:"default(0)"`
+	City      uint8         `orm:"size(100);"`
+}
+
+type CollectModel struct {
+	BaseModel
+	Id        int64         `orm:"pk;auto"`
+	Publisher *AccountModel `orm:"rel(fk);column(author_id)"`
+	House     *HouseModel   `orm:"rel(fk);column(house_id)"`
+}
+
+type ViewHistory struct {
+	BaseModel
+	Id        int64         `orm:"pk;auto"`
+	Publisher *AccountModel `orm:"rel(fk);column(author_id)"`
+	House     *HouseModel   `orm:"rel(fk);column(house_id)"`
+}
+
 func (self *AccountModel) TableName() string {
 	return "account" // 自定义表名
+}
+func (self *ViewHistory) TableName() string {
+	return "view_history"
+}
+func (self *CollectModel) TableName() string {
+	return "collect"
 }
 
 func (self *HouseModel) TableName() string {
 	return "house"
 }
 
-// 创建索引
-func (self *HouseModel) TableIndex() [][]string {
-	return [][]string{
-		{"title"},
-	}
+func (self *BannerModel) TableName() string {
+	return "banner"
 }
+
+// 创建索引
+//func (self *HouseModel) TableIndex() [][]string {
+//	return [][]string{
+//		{"title"},
+//	}
+//}
 
 // OrmManager 未初始化的标准变量定义格式
 var OrmManager orm.Ormer
@@ -95,17 +135,23 @@ var OrmManager orm.Ormer
 func InitOrmConfig() {
 	orm.RegisterDriver("mysql", orm.DRMySQL)
 	// todo: 提取配置文件
-	orm.RegisterDataBase("default", "mysql", "root:root@tcp(localhost:3306)/go_rent_backend?charset=utf8", 30)
+	orm.RegisterDataBase("default", "mysql", "root:root@tcp(localhost:3306)/rent?charset=utf8", 30)
 }
 
 func init() {
+	//orm.Debug = true
 	InitOrmConfig()
 	//创建表
-	fmt.Println("run 创建表...")
-	orm.RegisterModel(new(AccountModel))
-	orm.RegisterModel(new(HouseModel))
+	models := []interface{}{
+		new(AccountModel), new(HouseModel), new(BannerModel), new(CollectModel),
+		new(ViewHistory),
+	}
+	for i := 0; i < len(models); i++ {
+		orm.RegisterModel(models[i])
+	}
+	//fmt.Println("run 创建表...")
 	//生成表
 	//自动创建表 参数二为是否开启创建表(如果值为ture时，表已经存在并且表中有值的情况下，它会先删除我们的表，然后重新创建)   参数三是否更新表
-	orm.RunSyncdb("default", false, true)
+	//orm.RunSyncdb("default", false, true)
 	OrmManager = orm.NewOrm()
 }

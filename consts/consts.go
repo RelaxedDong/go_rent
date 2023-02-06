@@ -9,6 +9,10 @@ const (
 )
 
 const (
+	DefaultPageSize = 20
+)
+
+const (
 	CHECKING  = "0"
 	RENTING   = "1"
 	DELETED   = "2"
@@ -40,6 +44,7 @@ var ApartMentTypeMap = map[string]string{
 	"9": "其它",
 }
 
+var CityMapSorted = []string{"北京", "上海", "广州", "深圳", "杭州", "成都", "武汉", "长沙", "西安", "郑州", "天津", "厦门"}
 var CityMap = map[string]string{
 	"北京": "北京市",
 	"上海": "上海市",

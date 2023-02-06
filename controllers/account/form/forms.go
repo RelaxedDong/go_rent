@@ -21,6 +21,19 @@ type EditUserInfoForm struct {
 	//Age       uint8  `json:"age" validate:"required|min:0|max:111" message:"required: 请输入年龄|min:年龄错误|max:年龄错误"`
 	//Signature string `json:"signature" validate:"maxLen:100" message:"maxLen: 签名过长，请重新输入"`
 }
+type OperationForm struct {
+	OperationType string `json:"operation_type" validate:"required" message:"required: 请传递操作类型"`
+	HouseId       int64  `json:"houseId"`
+}
+type BindPhoneForm struct {
+	Iv            string `json:"iv" validate:"required"`
+	EncryptedData string `json:"encryptedData" validate:"required"`
+}
+type OperationDeleteForm struct {
+	OperationType string `json:"op_type" validate:"required" message:"required: 请传递操作类型"`
+	HouseId       int64  `json:"house_id"`
+	ClearAll      bool   `json:"clear_all"`
+}
 
 // Messages 您可以自定义验证器错误消息
 //func (f Login) Messages() map[string]string {

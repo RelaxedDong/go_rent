@@ -6,6 +6,7 @@ import (
 	"github.com/gookit/validate"
 	"rent_backend/consts"
 	"rent_backend/models"
+	"strconv"
 )
 
 type BaseController struct {
@@ -25,9 +26,33 @@ func (self *BaseController) RequestJsonFormat(structBody interface{}) {
 	}
 }
 
-func (self *BaseController) GetWxUser() (user models.AccountModel) {
+func (self *BaseController) GetWxUser() (isLogin bool, user models.AccountModel) {
+	defer func() {
+		if err := recover(); err != nil {
+			isLogin = false
+			user = models.AccountModel{}
+		}
+	}()
 	user = self.Ctx.Input.GetData("WxUser").(models.AccountModel)
-	return user
+	isLogin = true
+	return isLogin, user
+}
+
+func (self *BaseController) GetStartEndByPage(pageSize uint64) (uint64, uint64) {
+	var start uint64
+	page := self.Input().Get("page")
+	p, _ := strconv.ParseUint(page, 10, 64)
+	start = p * pageSize
+	return start, start + pageSize
+}
+
+func (self *BaseController) LoginRequired() {
+	// 必须要登陆的情况 ---> 需要获取到WxUser对象
+	// 从中间件中拿到	WxUser 对象
+	account := self.Ctx.Input.GetData("WxUser")
+	if account == nil {
+		self.RestFulParamsError("登陆已失效，请重新授权~")
+	}
 }
 
 func (self *BaseController) WriteResponse(data interface{}, msg string, defaultCode int, customCode ...int) {
