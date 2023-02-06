@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"rent_backend/utils"
 	"rent_backend/utils/requests"
 )
@@ -31,7 +32,9 @@ func GetUserOpenidAndSessionKey(code string) (string, string, string) {
 	CodeResp := CodeResult{}
 	err := requests.Get(OpenIdUrl, &CodeResp)
 	if err != nil {
-		return "", "", "请求微信服务器失败," + err.Error()
+		msg := "请求微信服务器失败," + err.Error()
+		logs.Error(msg)
+		return "", "", msg
 	}
 	return CodeResp.Openid, CodeResp.SessionKey, ""
 }

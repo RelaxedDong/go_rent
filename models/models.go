@@ -1,8 +1,10 @@
 package models
 
 import (
+	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
+	"rent_backend/utils"
 	"time"
 )
 
@@ -135,7 +137,15 @@ var OrmManager orm.Ormer
 func InitOrmConfig() {
 	orm.RegisterDriver("mysql", orm.DRMySQL)
 	// todo: 提取配置文件
-	orm.RegisterDataBase("default", "mysql", "root:root@tcp(localhost:3306)/rent?charset=utf8", 30)
+	dataSource := "{db_user}:{db_password}@tcp({db_host}:{db_port})/{db_database}?charset=utf8"
+	uri := utils.FormatString(dataSource, map[string]interface{}{
+		"db_user":     beego.AppConfig.String("db_user"),
+		"db_password": beego.AppConfig.String("db_password"),
+		"db_host":     beego.AppConfig.String("db_host"),
+		"db_port":     beego.AppConfig.String("db_port"),
+		"db_database": beego.AppConfig.String("db_database"),
+	})
+	orm.RegisterDataBase("default", "mysql", uri, 30)
 }
 
 func init() {

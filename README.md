@@ -14,6 +14,11 @@ httpport = 8000
 runmode = dev
 copyrequestbody = true
 logfilepath=logs/service.log
+db_user=root
+db_password=root
+db_host=localhost
+db_port=3306
+db_database=rent
 [dev]
 httpaddr = 127.0.0.1
 APPID=xxx # 小程序appid
