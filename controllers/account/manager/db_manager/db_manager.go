@@ -33,7 +33,6 @@ func GetOrCreateUser(userInfo accountform.UserInfoForm) (IsNew bool, UserId int6
 		Phone:        userInfo.Phone,
 		LastLogin:    time.Now(),
 		FromPlatform: "weixin",
-		IsAdminUser:  false,
 	}
 	// 是否是新创建的，创建的id，错误
 	IsNew, UserId, _ = models.OrmManager.ReadOrCreate(&user, "OpenId")

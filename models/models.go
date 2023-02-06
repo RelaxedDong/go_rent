@@ -30,7 +30,6 @@ type AccountModel struct {
 	Phone        string `orm:"size(11);null;default()"`
 	Wechat       string `orm:"size(50);null;default()"`
 	FromPlatform string `orm:"size(50);null;default(weixin)"`
-	IsAdminUser  bool   `orm:"default(false)"`
 
 	LastLogin time.Time `orm:"type(datetime)"`
 }
