@@ -1,7 +1,8 @@
 package db_manager
 
 import (
-	"fmt"
+	"encoding/json"
+	houseform "rent_backend/controllers/house/form"
 	"rent_backend/models"
 	"rent_backend/utils"
 	"strings"
@@ -11,7 +12,29 @@ func GetNearByHouses(city string, lng float64, lat float64, miles uint8) (houses
 	sql := "SELECT *, ((ACOS(SIN({lat} * PI() / 180) * SIN(latitude * PI() / 180) + COS({lat} * PI() / 180) * COS(latitude * PI() / 180) * COS(({lng} - longitude) * PI() / 180)) * 180 / PI()) * 60 * 1.1515) AS distance FROM house having city='{city}' and distance<={miles} ORDER BY distance ASC"
 	query := utils.FormatString(sql, map[string]interface{}{"lng": lng, "lat": lat, "miles": miles, "city": city})
 	models.OrmManager.Raw(query).QueryRows(&houses)
+	GetHouseAccounts(&houses)
 	return houses
+}
+
+func GetHouseAccounts(houses *[]models.HouseModel) []models.HouseModel {
+	userIds := []int64{}
+	for _, house := range *houses {
+		if !utils.IsInInt64Arrray(userIds, house.Publisher.Id) {
+			userIds = append(userIds, house.Publisher.Id)
+		}
+	}
+	UserIdToUser := map[int64]models.AccountModel{}
+	users := []models.AccountModel{}
+	if len(userIds) > 0 {
+		models.OrmManager.QueryTable(models.AccountModel{}).Filter("id__in", userIds).All(&users)
+		for _, user := range users {
+			UserIdToUser[user.Id] = user
+		}
+	}
+	for _, house := range *houses {
+		*house.Publisher = UserIdToUser[house.Publisher.Id]
+	}
+	return *houses
 }
 
 func GetHouseByQuery(city string, title string,
@@ -47,8 +70,7 @@ func GetHouseByQuery(city string, title string,
 		qs = qs.OrderBy(orderBy)
 	}
 
-	_, err := qs.RelatedSel("publisher").Limit(limit, offset).All(&houses)
-	fmt.Println("err", err)
+	_, _ = qs.RelatedSel("publisher").Limit(limit, offset).All(&houses)
 	return houses
 }
 
@@ -56,6 +78,39 @@ func GetHouseById(id int64) (house models.HouseModel, err error) {
 	qs := models.OrmManager.QueryTable(house)
 	err = qs.Filter("id__exact", id).RelatedSel("publisher").One(&house)
 	return house, err
+}
+
+func CreateHouse(form houseform.HouseAddForm, Publisher models.AccountModel) (err error) {
+	jsonImages, _ := json.Marshal(form.Images)
+	FacilityList, _ := json.Marshal(form.FacilityList)
+	ProvinceCityRegion := form.ProvinceCityRegion
+	province, city, region := ProvinceCityRegion[0], ProvinceCityRegion[1], ProvinceCityRegion[2]
+	// todo: 内聚到model层
+	var houseType = "1" // 整租
+	if form.HouseType == "合租" {
+		houseType = "2"
+	}
+	house := models.HouseModel{
+		Title:        form.Title,
+		Price:        form.Price,
+		Storey:       form.Storey,
+		Area:         form.Area,
+		Desc:         form.Desc,
+		HouseType:    houseType,
+		Apartment:    form.Apartment,
+		Address:      form.Address,
+		Latitude:     form.Latitude,
+		Longitude:    form.Longitude,
+		Province:     province,
+		City:         city,
+		Region:       region,
+		Imgs:         string(jsonImages),
+		Facilities:   string(FacilityList),
+		CanShortRent: form.ShortRent,
+		Publisher:    &Publisher,
+	}
+	_, err = models.OrmManager.Insert(&house)
+	return err
 }
 
 func GetBannerByQuery(city string, positions []string) (banners []models.BannerModel, err error) {

@@ -51,7 +51,7 @@ type HouseModel struct {
 	Imgs      string `orm:"type(text);"`
 	Area      uint32 `orm:"null"`
 	VideoUrl  string `orm:"size(200);null"`
-	Storey    uint8  `orm:"null"`
+	Storey    uint32 `orm:"null"`
 	Longitude string
 	Latitude  string
 	Price     uint32
@@ -136,7 +136,7 @@ var OrmManager orm.Ormer
 func InitOrmConfig() {
 	orm.RegisterDriver("mysql", orm.DRMySQL)
 	// todo: 提取配置文件
-	dataSource := "{db_user}:{db_password}@tcp({db_host}:{db_port})/{db_database}?charset=utf8"
+	dataSource := "{db_user}:{db_password}@tcp({db_host}:{db_port})/{db_database}?charset=utf8&loc=Local"
 	uri := utils.FormatString(dataSource, map[string]interface{}{
 		"db_user":     beego.AppConfig.String("db_user"),
 		"db_password": beego.AppConfig.String("db_password"),

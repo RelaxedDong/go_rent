@@ -5,6 +5,7 @@ import (
 	"rent_backend/consts"
 	"rent_backend/controllers"
 	UserDbManager "rent_backend/controllers/account/manager/db_manager"
+	houseform "rent_backend/controllers/house/form"
 	"rent_backend/controllers/house/manager/db_manager"
 	"rent_backend/controllers/house/manager/view_manager"
 	"rent_backend/utils"
@@ -68,19 +69,6 @@ func (request *Controller) BannerList() {
 	}, "")
 }
 
-func (request *Controller) Selects() {
-	//city := request.Input().Get("city")
-	apartmentList := utils.MapToNameValueList(consts.ApartMentTypeMap, true, []string{"0"})
-	houseTypeList := utils.MapToNameValueList(consts.RentTypeMap, true, []string{})
-	request.RestFulSuccess(map[string]interface{}{
-		"facility_list": consts.FacilityMap,
-		"apartment":     apartmentList,
-		"subway":        []string{},
-		"house_type":    houseTypeList,
-		"filter_conf":   view_manager.BuildSearchFilters(apartmentList, houseTypeList),
-	}, "")
-}
-
 func (request *Controller) SearchHouse() {
 	city := request.Input().Get("city")
 	//page := request.Input().Get("page")
@@ -115,11 +103,23 @@ func (request *Controller) NearbyHouses() {
 	json.Unmarshal([]byte(locationConf), &LocationData)
 	lng := LocationData["longitude"].(float64)
 	lat := LocationData["latitude"].(float64)
-	houses := db_manager.GetNearByHouses(city, lng, lat, 10)
+	houses := db_manager.GetNearByHouses(city, lng, lat, 5)
 	excludeIds := []int64{}
 	if excludeId != "" {
 		houseId, _ := strconv.Atoi(excludeId)
 		excludeIds = append(excludeIds, int64(houseId))
 	}
 	request.RestFulSuccess(map[string]interface{}{"houses": view_manager.GetHouseListInfo(houses, excludeIds)}, "")
+}
+
+func (request *Controller) HouseAdd() {
+	request.LoginRequired()
+	_, WxUser := request.GetWxUser()
+	var req houseform.HouseAddForm
+	request.RequestJsonFormat(&req)
+	err := db_manager.CreateHouse(req, WxUser)
+	if err != nil {
+		request.RestFulParamsError("创建房源失败: " + err.Error())
+	}
+	request.RestFulSuccess(map[string]interface{}{}, "")
 }

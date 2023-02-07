@@ -18,6 +18,15 @@ func InStringArray(value string, array []string) bool {
 	return false
 }
 
+func IsInInt64Arrray(s []int64, e int64) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
 func MapToNameValueList(DictData interface{}, reverseKeyValue bool, excludeKeys []string) interface{} {
 	// todo: 这里就是给一个map添加两个key字段，实现有点儿怪...
 	keys := []interface{}{}

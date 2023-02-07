@@ -1,7 +1,6 @@
 package account
 
 import (
-	"fmt"
 	"rent_backend/consts"
 	"rent_backend/controllers"
 	accountform "rent_backend/controllers/account/form"
@@ -37,7 +36,7 @@ func (request *Controller) Login() {
 		request.RestFulSuccess(map[string]interface{}{"token": jwtToken}, userError.Error())
 	}
 	data["user_id"] = account.Id
-	UserDbManager.UpdateUserInfo(account, "", "", SessionKey)
+	UserDbManager.UpdateUserInfo(account, "", "", SessionKey, true)
 	// todo: is_superuser, finish_user_info字段舍弃？
 	request.RestFulSuccess(data, "")
 }
@@ -81,7 +80,7 @@ func (request *Controller) EditUserInfo() {
 	_, WxUser := request.GetWxUser()
 	var req accountform.EditUserInfoForm
 	request.RequestJsonFormat(&req)
-	UserDbManager.UpdateUserInfo(WxUser, req.Wechat, req.Phone, "")
+	UserDbManager.UpdateUserInfo(WxUser, req.Wechat, req.Phone, "", false)
 	request.RestFulSuccess(map[string]interface{}{}, "")
 }
 
@@ -113,7 +112,7 @@ func (request *Controller) BindPhone() {
 	if err != nil {
 		request.RestFulParamsError(err.Error())
 	}
-	UserDbManager.UpdateUserInfo(WxUser, "", phone, "")
+	UserDbManager.UpdateUserInfo(WxUser, "", phone, "", false)
 	request.RestFulSuccess(map[string]interface{}{"phone": phone}, "")
 }
 
@@ -140,7 +139,6 @@ func (request *Controller) OperationDelete() {
 	var req accountform.OperationDeleteForm
 	request.RequestJsonFormat(&req)
 	var houses []models.HouseModel
-	fmt.Println("req.OperationType", req.OperationType, req.HouseId)
 	switch req.OperationType {
 	case "collect":
 		if req.HouseId != 0 {

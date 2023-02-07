@@ -3,6 +3,7 @@ package routers
 import (
 	"github.com/astaxie/beego"
 	"rent_backend/controllers/account"
+	"rent_backend/controllers/common"
 	"rent_backend/controllers/house"
 	"rent_backend/middleware"
 )
@@ -20,7 +21,9 @@ func init() {
 	// house
 	beego.Router("/api/house/city_conf", &house.Controller{}, "Get:CityListConf")
 	beego.Router("/api/house/index", &house.Controller{}, "Get:HouseIndex")
-	beego.Router("/api/house/selects", &house.Controller{}, "Get:Selects")
+	beego.Router("/api/house/selects", &common.Controller{}, "Get:Selects")
+	beego.Router("/api/house/oss_sign", &common.Controller{}, "Get:GetOssSign")
+	beego.Router("/api/house/house_add", &house.Controller{}, "Post:HouseAdd")
 	beego.Router("/api/house/banners", &house.Controller{}, "Get:BannerList")
 	beego.Router("/api/house/search", &house.Controller{}, "Get:SearchHouse")
 	beego.Router("/api/house/nearby_houses", &house.Controller{}, "Get:NearbyHouses")

@@ -2,7 +2,6 @@ package UserDbManager
 
 import (
 	"errors"
-	"fmt"
 	accountform "rent_backend/controllers/account/form"
 	"rent_backend/models"
 	"strconv"
@@ -16,7 +15,6 @@ func GetUserByOpenId(openId string) (user models.AccountModel, err error) {
 	qs := models.OrmManager.QueryTable(user)
 	err = qs.Filter("openid__exact", openId).One(&user)
 	if err != nil {
-		fmt.Println("err", err)
 		return user, errors.New("用户不存在")
 	}
 	return user, nil
@@ -36,11 +34,10 @@ func GetOrCreateUser(userInfo accountform.UserInfoForm) (IsNew bool, UserId int6
 	}
 	// 是否是新创建的，创建的id，错误
 	IsNew, UserId, _ = models.OrmManager.ReadOrCreate(&user, "OpenId")
-	fmt.Println("是否是新创建的", IsNew)
 	return IsNew, UserId
 }
 
-func UpdateUserInfo(userInfo models.AccountModel, wechat string, phone string, SessionKey string) {
+func UpdateUserInfo(userInfo models.AccountModel, wechat string, phone string, SessionKey string, updateLoginTime bool) {
 	user := models.AccountModel{Id: userInfo.Id}
 	var updatedFields []string
 	if wechat != "" {
@@ -54,6 +51,10 @@ func UpdateUserInfo(userInfo models.AccountModel, wechat string, phone string, S
 	if SessionKey != "" {
 		user.SessionKey = SessionKey
 		updatedFields = append(updatedFields, "session_key")
+	}
+	if updateLoginTime {
+		user.LastLogin = time.Now()
+		updatedFields = append(updatedFields, "last_login")
 	}
 	models.OrmManager.Update(&user, updatedFields...)
 }
@@ -82,13 +83,12 @@ func DeleteCollectRecordDb(RecordId int64) {
 }
 
 func DeleteUserCollectRecord(HouseId int64, PublisherId int64) {
-	_, err := models.OrmManager.QueryTable(models.CollectModel{}).Filter("House__id", HouseId).Filter("Publisher__id", PublisherId).Delete()
-	fmt.Println(err)
+	_, _ = models.OrmManager.QueryTable(models.CollectModel{}).Filter("House__id", HouseId).Filter("Publisher__id", PublisherId).Delete()
 }
 
 func DeleteHistoryRecordDb(HouseId int64, PublisherId int64) {
-	_, err := models.OrmManager.QueryTable(models.ViewHistory{}).Filter("House__id", HouseId).Filter("Publisher__id", PublisherId).Delete()
-	fmt.Println(err)
+	_, _ = models.OrmManager.QueryTable(models.ViewHistory{}).Filter("House__id", HouseId).Filter("Publisher__id", PublisherId).Delete()
+
 }
 
 func DeleteAllHistoryByUserId(Publisher models.AccountModel) {
