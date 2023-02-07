@@ -24,6 +24,7 @@ func init() {
 	beego.Router("/api/house/selects", &common.Controller{}, "Get:Selects")
 	beego.Router("/api/house/oss_sign", &common.Controller{}, "Get:GetOssSign")
 	beego.Router("/api/house/house_add", &house.Controller{}, "Post:HouseAdd")
+	beego.Router("/api/house/house_add_check", &house.Controller{}, "Get:HouseAddCheck")
 	beego.Router("/api/house/banners", &house.Controller{}, "Get:BannerList")
 	beego.Router("/api/house/search", &house.Controller{}, "Get:SearchHouse")
 	beego.Router("/api/house/nearby_houses", &house.Controller{}, "Get:NearbyHouses")

@@ -123,3 +123,15 @@ func (request *Controller) HouseAdd() {
 	}
 	request.RestFulSuccess(map[string]interface{}{}, "")
 }
+
+func (request *Controller) HouseAddCheck() {
+	request.LoginRequired()
+	_, WxUser := request.GetWxUser()
+	if WxUser.Phone == "" || WxUser.Wechat == "" {
+		request.RestFulSuccess(map[string]interface{}{
+			"can_publish": false,
+		},
+			"为了方便租客联系，请先绑定信息~")
+	}
+	request.RestFulSuccess(map[string]interface{}{"can_publish": true}, "")
+}
