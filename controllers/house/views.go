@@ -40,6 +40,7 @@ func (request *Controller) HouseIndex() {
 
 func (request *Controller) HouseDetail() {
 	isLogin, WxUser := request.GetWxUser()
+	// 这里不用处理错误，路由会直接拦截报Not Found
 	HouseIdString := request.Ctx.Input.Param(":house_id")
 	HouseId, _ := strconv.ParseInt(HouseIdString, 10, 64)
 	HouseInfo, err := db_manager.GetHouseById(HouseId)
