@@ -2,6 +2,7 @@ package db_manager
 
 import (
 	"encoding/json"
+	"rent_backend/consts/model_consts"
 	houseform "rent_backend/controllers/house/form"
 	"rent_backend/models"
 	"rent_backend/utils"
@@ -9,8 +10,8 @@ import (
 )
 
 func GetNearByHouses(city string, lng float64, lat float64, miles uint8) (houses []models.HouseModel) {
-	sql := "SELECT *, ((ACOS(SIN({lat} * PI() / 180) * SIN(latitude * PI() / 180) + COS({lat} * PI() / 180) * COS(latitude * PI() / 180) * COS(({lng} - longitude) * PI() / 180)) * 180 / PI()) * 60 * 1.1515) AS distance FROM house having city='{city}' and distance<={miles} ORDER BY distance ASC"
-	query := utils.FormatString(sql, map[string]interface{}{"lng": lng, "lat": lat, "miles": miles, "city": city})
+	sql := "SELECT *, ((ACOS(SIN({lat} * PI() / 180) * SIN(latitude * PI() / 180) + COS({lat} * PI() / 180) * COS(latitude * PI() / 180) * COS(({lng} - longitude) * PI() / 180)) * 180 / PI()) * 60 * 1.1515) AS distance FROM house having city='{city}' and status='{status}' and distance<={miles} ORDER BY distance ASC"
+	query := utils.FormatString(sql, map[string]interface{}{"lng": lng, "lat": lat, "miles": miles, "city": city, "status": model_consts.HOUSE_RENTING})
 	models.OrmManager.Raw(query).QueryRows(&houses)
 	GetHouseAccounts(&houses)
 	return houses
@@ -46,7 +47,7 @@ func GetHouseByQuery(city string, title string,
 	orderBy string,
 	offset uint64, limit int) (houses []models.HouseModel) {
 	var HouseModel models.HouseModel
-	qs := models.OrmManager.QueryTable(HouseModel).Filter("city__exact", city)
+	qs := models.OrmManager.QueryTable(HouseModel).Filter("city__exact", city).Filter("status__exact", model_consts.HOUSE_RENTING)
 	if title != "" {
 		qs = qs.Filter("title__contains", title)
 	}
@@ -108,6 +109,7 @@ func CreateHouse(form houseform.HouseAddForm, Publisher models.AccountModel) (er
 		Facilities:   string(FacilityList),
 		CanShortRent: form.ShortRent,
 		Publisher:    &Publisher,
+		Status:       model_consts.HOUSE_CHECKING,
 	}
 	_, err = models.OrmManager.Insert(&house)
 	return err
