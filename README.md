@@ -9,22 +9,35 @@ https://github.com/RelaxedDong/rent_mini
 
 # 配置文件
 ```
-appname = xxx
+appname = 蚁租房
 httpport = 8000
 runmode = dev
 copyrequestbody = true
 logfilepath=logs/service.log
-db_user=root
-db_password=root
-db_host=localhost
+
+oss_access_key=xxx
+oss_secret_key=xxxx
+oss_upload_path=https://bucket_name.oss-cn-shenzhen.aliyuncs.com
+oss_region_host=https://bucket_name.oss-cn-shenzhen.aliyuncs.com
+
+
 db_port=3306
-db_database=rent
+db_database=xxx
+
 [dev]
 httpaddr = 127.0.0.1
 APPID=xxx # 小程序appid
 APP_SECRET=xxx # 小程序 secret
+db_host=xxx
+db_user=xxx
+db_password=xxx
+
+
 [pro]
 httpaddr = 127.0.0.1
 APPID=xxx
 APP_SECRET=xxx
+db_host=localhost
+db_user=xxx
+db_password=xxx
 ```
