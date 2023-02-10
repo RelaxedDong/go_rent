@@ -38,6 +38,7 @@ func GetUserOpenidAndSessionKey(code string) (string, string, string) {
 	}
 	return CodeResp.Openid, CodeResp.SessionKey, ""
 }
+
 func DecryptPhone(encryptedData string, ivString string, sessionKey string) (phone string, err error) {
 	// 解密手机号
 	ciphertext, _ := base64.StdEncoding.DecodeString(encryptedData)

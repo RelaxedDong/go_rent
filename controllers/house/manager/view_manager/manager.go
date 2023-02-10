@@ -83,6 +83,7 @@ func BuildHouseInfo(house models.HouseModel) interface{} {
 		"gender":     publisher.Gender,
 		"last_login": "",
 		"wechat":     publisher.Wechat,
+		"phone":      publisher.Phone,
 	}
 	return houseInfo
 }
