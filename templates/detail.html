@@ -70,9 +70,12 @@
         <div class="aui-flex b-line">
             <div class="aui-flex-box">
                 <h1>{{ .house.title }}</h1>
-                <h2 style="margin-top:10px">价格：{{ .house.price }}</h2>
-                <div style="margin-top:10px;color: darkgrey">地址：{{ .house.address }}</div>
-                {{ .MiniUrl }}
+                <div style="margin-top:10px;color: darkgrey">
+                    <a style="margin-top:10px;cursor: pointer;color: #0da4c3" href="https://uri.amap.com/marker?position={{ .house.longitude }},{{.house.latitude}}&name={{ .house.address }}">
+                        {{ .house.address }} (点击查看)
+                    </a>
+                </div>
+
                 <div style="margin-top:10px">
                     <span>
                         {{ range $tag := .house.tags}}
@@ -80,6 +83,8 @@
                         {{end}}
 				</span>
                 </div>
+                <h2 style="margin-top:10px">房租价格：{{ .house.price }}</h2>
+
                 <div style="margin-top:20px;">
                     <button type="button" class="btn btn-success btn-xs" data-toggle="modal" data-target="#myModal">
                         查看详情

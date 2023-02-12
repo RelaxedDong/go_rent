@@ -2,6 +2,7 @@ package requests
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -21,6 +22,7 @@ func Get(url string, target interface{}) error {
 
 func JsonPostGetBody(url string, jsonData interface{}) (result []byte, err error) {
 	data, _ := json.Marshal(jsonData)
+	fmt.Println("string(data)", string(data))
 	b := strings.NewReader(string(data))
 	r, err := myClient.Post(url, "application/json", b)
 	if err != nil {
