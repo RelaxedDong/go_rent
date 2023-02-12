@@ -5,6 +5,7 @@ import (
 	"rent_backend/controllers/account"
 	"rent_backend/controllers/common"
 	"rent_backend/controllers/house"
+	"rent_backend/controllers/house/view/house_api"
 	"rent_backend/middleware"
 )
 
@@ -18,15 +19,17 @@ func init() {
 	beego.Router("/api/account/operation", &account.Controller{}, "Post:Operation")
 	beego.Router("/api/account/get_collects", &account.Controller{}, "Get:Collects")
 	beego.Router("/api/account/collects_delete", &account.Controller{}, "Post:OperationDelete")
-	// house
-	beego.Router("/api/house/city_conf", &house.Controller{}, "Get:CityListConf")
-	beego.Router("/api/house/index", &house.Controller{}, "Get:HouseIndex")
+	// house api
+	beego.Router("/api/house/city_conf", &house_api.Controller{}, "Get:CityListConf")
+	beego.Router("/api/house/index", &house_api.Controller{}, "Get:HouseIndex")
 	beego.Router("/api/house/selects", &common.Controller{}, "Get:Selects")
 	beego.Router("/api/house/oss_sign", &common.Controller{}, "Get:GetOssSign")
-	beego.Router("/api/house/house_add", &house.Controller{}, "Post:HouseAdd")
-	beego.Router("/api/house/house_add_check", &house.Controller{}, "Get:HouseAddCheck")
-	beego.Router("/api/house/banners", &house.Controller{}, "Get:BannerList")
-	beego.Router("/api/house/search", &house.Controller{}, "Get:SearchHouse")
-	beego.Router("/api/house/nearby_houses", &house.Controller{}, "Get:NearbyHouses")
-	beego.Router("/api/house/detail/:house_id([0-9]+)", &house.Controller{}, "Get:HouseDetail")
+	beego.Router("/api/house/house_add", &house_api.Controller{}, "Post:HouseAdd")
+	beego.Router("/api/house/house_add_check", &house_api.Controller{}, "Get:HouseAddCheck")
+	beego.Router("/api/house/banners", &house_api.Controller{}, "Get:BannerList")
+	beego.Router("/api/house/search", &house_api.Controller{}, "Get:SearchHouse")
+	beego.Router("/api/house/nearby_houses", &house_api.Controller{}, "Get:NearbyHouses")
+	beego.Router("/api/house/detail/:house_id([0-9]+)", &house_api.Controller{}, "Get:HouseDetail")
+	// pc/m
+	beego.Router("/detail/:house_id([0-9]+)", &house.Controller{}, "Get:HouseDetail")
 }

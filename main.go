@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	_ "rent_backend/routers"
+	_ "rent_backend/template_func"
 	"rent_backend/utils"
 )
 

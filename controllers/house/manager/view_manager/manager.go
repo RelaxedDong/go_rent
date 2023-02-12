@@ -55,6 +55,7 @@ func BuildHouseInfo(house models.HouseModel) interface{} {
 	houseInfo := map[string]interface{}{
 		"id":             house.Id,
 		"title":          house.Title,
+		"desc":           house.Desc,
 		"address":        house.Address,
 		"region":         house.Region,
 		"city":           house.City,
@@ -85,6 +86,12 @@ func BuildHouseInfo(house models.HouseModel) interface{} {
 		"wechat":     publisher.Wechat,
 		//"phone":      publisher.Phone,
 	}
+	facilitiesConfList := []map[string]string{}
+	for _, i2 := range houseInfo["facilities"].([]string) {
+		data := consts.FacilityMap[i2]
+		facilitiesConfList = append(facilitiesConfList, data)
+	}
+	houseInfo["facilities_conf"] = facilitiesConfList
 	return houseInfo
 }
 

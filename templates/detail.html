@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ .house.title }}</title>
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport"/>
+    <meta content="yes" name="apple-mobile-web-app-capable"/>
+    <meta content="black" name="apple-mobile-web-app-status-bar-style"/>
+    <meta http-equiv=Content-Language content=zh-cn>
+    <meta http-equiv="Content-Type" content=”text/html; charset=gb2312″>
+    <meta name="keywords" content="{{ .house.title }}">
+    <meta name=”description” content="{{ .house.desc }}">
+    <meta content="telephone=no" name="format-detection"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script charset="utf-8" src="https://map.qq.com/api/js?v=2.exp&key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77"></script>
+    <script src='/static/js/clickboard.min.js'></script>
+    <link href="/static/css/detail.css" rel="stylesheet" type="text/css"/>
+    <link href="/static/css/iconfont.css" rel="stylesheet" type="text/css"/>
+    <script src="/static/js/sweetalert.min.js"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+    <script>
+        window.onload = function () {
+            var link_clipboard = new ClipboardJS("#linkcopy")
+            link_clipboard.on("success", function (e) {
+                swal({
+                    title: "链接复制成功",
+                    text: "",
+                    icon: "success",
+                });
+            })
+        }
+    </script>
+    <style>
+        .detail-btn {
+            background: #2DCB73;color: white;
+            padding: 5px 10px;border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<section class="aui-flexView" id="view">
+    <section class="aui-scrollView">
+        <div class="img_gallery" id="commodity">
+            <div class="main_img">
+                <ul>
+                    {{ range $idx, $img := .house.imgs }}
+                    <li>
+                        <img class="swipper-banner" src="{{$img}}" alt=""
+                             onError="this.src='{{ $img }}'">
+
+                    </li>
+                    {{end}}
+                </ul>
+            </div>
+            <div class="img_font">
+                {{ range $idx, $img := .house.imgs }}
+                <span>{{indexaddone $idx }} / {{$.house.imgs|len}}</span>
+                {{ end }}
+            </div>
+        </div>
+    <div class="aui-village">
+        <div class="aui-flex b-line">
+            <div class="aui-flex-box">
+                <h1>{{ .house.title }}</h1>
+                <h2 style="margin-top:10px">价格：{{ .house.price }}</h2>
+                <div style="margin-top:10px;color: darkgrey">地址：{{ .house.address }}</div>
+                {{ .MiniUrl }}
+                <div style="margin-top:10px">
+                    <span>
+                        {{ range $tag := .house.tags}}
+                        <em>{{ $tag }}</em>
+                        {{end}}
+				</span>
+                </div>
+                <div style="margin-top:20px;">
+                    <button type="button" class="btn btn-success btn-xs" data-toggle="modal" data-target="#myModal">
+                        查看详情
+                    </button>
+                </div>
+            </div>
+        </div>
+            <div class="aui-village b-line">
+                <p class="desc-box">
+                    {{ .house.desc }}
+                </p>
+            <div class="aui-flex aui-flex-color">
+                <div class="aui-flex-box">
+                    <h2>房屋配置</h2>
+                </div>
+            </div>
+                <div class="aui-palace aui-palace-one  b-line">
+                    {{ range $facility := .house.facilities_conf }}
+                    <a href="javascript:;" class="aui-palace-grid">
+                        <div class="aui-palace-grid-icon">
+                            <i class="iconfont {{ $facility.icon }}"></i>
+                        </div>
+                        <div class="aui-palace-grid-text">
+                            <h2>{{ $facility.name }}</h2>
+                        </div>
+                    </a>
+                    {{end}}
+                </div>
+                <div class="modal fade bs-example-modal-sm" id="myModal" tabindex="-1" role="dialog"
+             aria-labelledby="mySmallModalLabel" style="width: 70%;margin:0 auto; top: 20%;">
+            <div class="modal-dialog modal-sm" role="document" style="border-radius: 10px;overflow: hidden">
+                <div class="modal-content">
+                    <img src="data:image/png;base64,{{.mini_img}}"
+                         alt="{{ .house.title }}" class="mini-logo">
+                    <div class="modal-text">
+                        微信扫一扫二维码（长按保存）
+                        <br>方便查看详情信息并随时联系
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </section>
+
+</section>
+</body>
+<script type="text/javascript" src="/static/js/jquery.min.js"></script>
+<script type="text/javascript" src="/static/js/slider.js"></script>
+<script type="text/javascript" src="/static/js/touchSlider.js"></script>
+<script type="text/javascript" src="/static/js/html2canvas.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $(".main_img").touchSlider({
+            flexible: true,
+            speed: 200,
+            btn_prev: $("#btn_prev"),
+            btn_next: $("#btn_next"),
+            paging: $(".point a"),
+            counter: function (e) {
+                $(".point a").removeClass("on").eq(e.current - 1).addClass("on");
+                $(".img_font span").hide().eq(e.current - 1).show();
+            }
+        });
+
+    });
+</script>
+<script type="text/javascript">
+    function takeScreenshot() {
+        html2canvas(document.querySelector("#view"), {
+            useCORS: true,
+        }).then(canvas => {
+            document.body.appendChild(canvas)
+            canvas.toDataURL();
+        });
+    }
+</script>
+</html>

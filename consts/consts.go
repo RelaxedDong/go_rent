@@ -43,6 +43,7 @@ var ApartMentTypeMap = map[string]string{
 	"8": "四室两厅",
 	"9": "其它",
 }
+var DEFAULT_NONE_IMAGE string = "https://rent-mini.obs.cn-north-4.myhuaweicloud.com/web/01bc0f59c9a9b0a8012053f85f066c.jpg%40260w_195h_1c_1e_1o_100sh.jpg?versionId=null"
 
 var CityMapSorted = []string{"北京", "上海", "广州", "深圳", "杭州", "成都", "武汉", "长沙", "西安", "郑州", "天津", "厦门"}
 var CityMap = map[string]string{

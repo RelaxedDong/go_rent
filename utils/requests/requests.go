@@ -2,7 +2,9 @@ package requests
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -15,4 +17,16 @@ func Get(url string, target interface{}) error {
 	}
 	defer r.Body.Close()
 	return json.NewDecoder(r.Body).Decode(target)
+}
+
+func JsonPostGetBody(url string, jsonData interface{}) (result []byte, err error) {
+	data, _ := json.Marshal(jsonData)
+	b := strings.NewReader(string(data))
+	r, err := myClient.Post(url, "application/json", b)
+	if err != nil {
+		return result, err
+	}
+	defer r.Body.Close()
+	result, err = ioutil.ReadAll(r.Body)
+	return result, err
 }

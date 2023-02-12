@@ -5,15 +5,21 @@ import (
 	"crypto/cipher"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
-	"rent_backend/utils"
 	"rent_backend/utils/requests"
+	"strconv"
 )
 
-var GetOpenIdUrl = "https://api.weixin.qq.com/sns/jscode2session?appid={appid}&secret={secret}&js_code={code}&grant_type=authorization_code"
 var APPID = beego.AppConfig.String("APPID")
 var AppSecret = beego.AppConfig.String("APP_SECRET")
+
+const (
+	qrcodeMiniPath = "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=%s"
+	openIdUrl      = "https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code"
+	accessTokenUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s"
+)
 
 type CodeResult struct {
 	Openid     string `json:"openid"`
@@ -28,9 +34,9 @@ func PKCS7UnPadding(plantText []byte) []byte {
 
 func GetUserOpenidAndSessionKey(code string) (string, string, string) {
 	// 请求微信服务器
-	OpenIdUrl := utils.FormatString(GetOpenIdUrl, map[string]interface{}{"appid": APPID, "secret": AppSecret, "code": code})
+	url := fmt.Sprintf(openIdUrl, APPID, AppSecret, code)
 	CodeResp := CodeResult{}
-	err := requests.Get(OpenIdUrl, &CodeResp)
+	err := requests.Get(url, &CodeResp)
 	if err != nil {
 		msg := "请求微信服务器失败," + err.Error()
 		logs.Error(msg)
@@ -56,4 +62,34 @@ func DecryptPhone(encryptedData string, ivString string, sessionKey string) (pho
 	json.Unmarshal(result, &expectedResponseBody)
 	phone = expectedResponseBody["purePhoneNumber"].(string)
 	return phone, err
+}
+
+func GetAccessToken() (string, error) {
+	//生成一个基础access_token
+	url := fmt.Sprintf(accessTokenUrl, APPID, AppSecret)
+	resp := map[string]interface{}{}
+	err := requests.Get(url, &resp)
+	if err != nil {
+		logs.Error("获取accesstoken错误" + err.Error())
+		return "", err
+	}
+	return resp["access_token"].(string), nil
+}
+
+func GetPathImgByHouseId(houseId int64) (string, error) {
+	// 从微信服务器获取小程序的二维码路径
+	accessToken, err := GetAccessToken()
+	if err != nil {
+		return "", err
+	}
+	url := fmt.Sprintf(qrcodeMiniPath, accessToken)
+	data, err := requests.JsonPostGetBody(url, map[string]string{
+		"scene": "house=" + strconv.FormatInt(houseId, 10),
+		"page":  "pages/detail/detail",
+	})
+	if err != nil {
+		logs.Error("获取小程序path出错" + err.Error())
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(data), err
 }
