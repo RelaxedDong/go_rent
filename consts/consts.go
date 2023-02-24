@@ -9,6 +9,11 @@ const (
 )
 
 const (
+	ErrorMsgHouseNotExists   = "房源不存在!"
+	ErrorMsgAccountNotExists = "用户不存在!"
+)
+
+const (
 	DefaultPageSize = 20
 )
 
@@ -75,3 +80,5 @@ var FacilityMap = map[string]map[string]string{
 	"weibolu":   {"name": "微波炉", "icon": "icon-weibolu-"},
 	"xiyiji":    {"name": "洗衣机", "icon": "icon-xiyiji"},
 }
+
+var HouseCheckMessage string = "%s 发布了新房源，请注意审核!"

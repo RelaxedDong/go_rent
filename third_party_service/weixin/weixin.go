@@ -70,7 +70,7 @@ func GetAccessToken() (string, error) {
 	resp := map[string]interface{}{}
 	err := requests.Get(url, &resp)
 	if err != nil {
-		logs.Error("获取accesstoken错误" + err.Error())
+		logs.Error("获取AccessToken错误" + err.Error())
 		return "", err
 	}
 	return resp["access_token"].(string), nil

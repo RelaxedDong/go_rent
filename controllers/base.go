@@ -26,6 +26,11 @@ func (self *BaseController) RequestJsonFormat(structBody interface{}) {
 	}
 }
 
+func (self *BaseController) GetPostBody() (jsonData map[string]interface{}) {
+	json.Unmarshal(self.Ctx.Input.RequestBody, &jsonData)
+	return jsonData
+}
+
 func (self *BaseController) GetWxUser() (isLogin bool, user models.AccountModel) {
 	defer func() {
 		if err := recover(); err != nil {

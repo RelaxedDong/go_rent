@@ -93,7 +93,7 @@ func (request *Controller) Operation() {
 	if req.OperationType == "collect" {
 		HouseInfo, err := db_manager.GetHouseById(req.HouseId)
 		if err != nil {
-			request.RestFulParamsError("房源不存在...", consts.STATUS_CODE_404)
+			request.RestFulParamsError(consts.ErrorMsgHouseNotExists, consts.STATUS_CODE_404)
 		}
 		isNew, RecordId := UserDbManager.GetOrCreateUserFavor(HouseInfo, WxUser)
 		if !isNew {
@@ -153,5 +153,13 @@ func (request *Controller) OperationDelete() {
 			UserDbManager.DeleteAllHistoryByUserId(WxUser)
 		}
 	}
+	request.RestFulSuccess(map[string]interface{}{"houses": view_manager.GetHouseListInfo(houses)}, "")
+}
+
+func (request *Controller) UserPublish() {
+	// 获取历史记录与收藏
+	request.LoginRequired()
+	_, WxUser := request.GetWxUser()
+	houses := db_manager.GetUserHouses(WxUser.Id)
 	request.RestFulSuccess(map[string]interface{}{"houses": view_manager.GetHouseListInfo(houses)}, "")
 }

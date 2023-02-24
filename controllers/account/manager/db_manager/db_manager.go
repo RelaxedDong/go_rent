@@ -2,6 +2,7 @@ package UserDbManager
 
 import (
 	"errors"
+	"rent_backend/consts"
 	accountform "rent_backend/controllers/account/form"
 	"rent_backend/models"
 	"strconv"
@@ -15,7 +16,7 @@ func GetUserByOpenId(openId string) (user models.AccountModel, err error) {
 	qs := models.OrmManager.QueryTable(user)
 	err = qs.Filter("openid__exact", openId).One(&user)
 	if err != nil {
-		return user, errors.New("用户不存在")
+		return user, errors.New(consts.ErrorMsgAccountNotExists)
 	}
 	return user, nil
 }

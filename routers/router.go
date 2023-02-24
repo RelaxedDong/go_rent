@@ -19,6 +19,7 @@ func init() {
 	beego.Router("/api/account/operation", &account.Controller{}, "Post:Operation")
 	beego.Router("/api/account/get_collects", &account.Controller{}, "Get:Collects")
 	beego.Router("/api/account/collects_delete", &account.Controller{}, "Post:OperationDelete")
+	beego.Router("/api/account/get_publish", &account.Controller{}, "Get:UserPublish")
 	// house api
 	beego.Router("/api/house/city_conf", &house_api.Controller{}, "Get:CityListConf")
 	beego.Router("/api/house/index", &house_api.Controller{}, "Get:HouseIndex")
@@ -26,6 +27,7 @@ func init() {
 	beego.Router("/api/house/oss_sign", &common.Controller{}, "Get:GetOssSign")
 	beego.Router("/api/house/house_add", &house_api.Controller{}, "Post:HouseAdd")
 	beego.Router("/api/house/house_add_check", &house_api.Controller{}, "Get:HouseAddCheck")
+	beego.Router("/api/house/house_delete", &house_api.Controller{}, "Post:HouseDelete")
 	beego.Router("/api/house/banners", &house_api.Controller{}, "Get:BannerList")
 	beego.Router("/api/house/search", &house_api.Controller{}, "Get:SearchHouse")
 	beego.Router("/api/house/nearby_houses", &house_api.Controller{}, "Get:NearbyHouses")

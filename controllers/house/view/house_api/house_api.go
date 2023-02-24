@@ -2,6 +2,8 @@ package house_api
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/astaxie/beego"
 	"rent_backend/consts"
 	"rent_backend/controllers"
 	UserDbManager "rent_backend/controllers/account/manager/db_manager"
@@ -9,6 +11,7 @@ import (
 	"rent_backend/controllers/house/manager/db_manager"
 	"rent_backend/controllers/house/manager/view_manager"
 	"rent_backend/utils"
+	"rent_backend/utils/email"
 	"strconv"
 )
 
@@ -45,7 +48,7 @@ func (request *Controller) HouseDetail() {
 	HouseId, _ := strconv.ParseInt(HouseIdString, 10, 64)
 	HouseInfo, err := db_manager.GetHouseById(HouseId)
 	if err != nil {
-		request.RestFulParamsError("房源不存在...", consts.STATUS_CODE_404)
+		request.RestFulParamsError(consts.ErrorMsgHouseNotExists, consts.STATUS_CODE_404)
 	}
 	Info := view_manager.BuildHouseInfo(HouseInfo)
 	result := map[string]interface{}{
@@ -118,10 +121,27 @@ func (request *Controller) HouseAdd() {
 	_, WxUser := request.GetWxUser()
 	var req houseform.HouseAddForm
 	request.RequestJsonFormat(&req)
-	err := db_manager.CreateHouse(req, WxUser)
-	if err != nil {
-		request.RestFulParamsError("创建房源失败: " + err.Error())
+	subject := "房源审核提醒"
+	if req.HouseId == 0 {
+		err := db_manager.CreateHouse(req, WxUser)
+		if err != nil {
+			request.RestFulParamsError("创建房源失败: " + err.Error())
+		}
+	} else {
+		HouseInfo, err := db_manager.GetHouseByIdNoPublisher(req.HouseId)
+		if err != nil || HouseInfo.Publisher.Id != WxUser.Id {
+			request.RestFulParamsError(consts.ErrorMsgHouseNotExists)
+		}
+		err = db_manager.UpdateHouse(req.HouseId, req, WxUser)
+		if err != nil {
+			request.RestFulParamsError("房源更新失败: " + err.Error())
+		}
+		// 编辑房源
+		subject = "房源更新审核提醒"
 	}
+	// 发送审核邮件
+	message := fmt.Sprintf(consts.HouseCheckMessage, WxUser.NickName)
+	go email.SendMail(beego.AppConfig.String("email_user"), subject, message)
 	request.RestFulSuccess(map[string]interface{}{}, "")
 }
 
@@ -135,4 +155,23 @@ func (request *Controller) HouseAddCheck() {
 			"为了方便租客联系，请先绑定信息~")
 	}
 	request.RestFulSuccess(map[string]interface{}{"can_publish": true}, "")
+}
+
+func (request *Controller) HouseDelete() {
+	request.LoginRequired()
+	_, WxUser := request.GetWxUser()
+	postData := request.GetPostBody()
+	houseId, ok := postData["houseid"]
+	if !ok {
+		request.RestFulParamsError(consts.ErrorMsgHouseNotExists)
+	}
+	house, err := db_manager.GetHouseByIdNoPublisher(int64(houseId.(float64)))
+	if err != nil || house.Publisher.Id != WxUser.Id {
+		request.RestFulParamsError(consts.ErrorMsgHouseNotExists)
+	}
+	err = db_manager.DeleteHouse(house)
+	if err != nil {
+		request.RestFulParamsError("删除失败:" + err.Error())
+	}
+	request.RestFulSuccess(map[string]interface{}{}, "")
 }

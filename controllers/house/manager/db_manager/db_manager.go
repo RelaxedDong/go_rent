@@ -2,6 +2,7 @@ package db_manager
 
 import (
 	"encoding/json"
+	"rent_backend/consts"
 	"rent_backend/consts/model_consts"
 	houseform "rent_backend/controllers/house/form"
 	"rent_backend/models"
@@ -81,7 +82,24 @@ func GetHouseById(id int64) (house models.HouseModel, err error) {
 	return house, err
 }
 
-func CreateHouse(form houseform.HouseAddForm, Publisher models.AccountModel) (err error) {
+func DeleteHouse(house models.HouseModel) (err error) {
+	house.Status = consts.DELETED
+	_, err = models.OrmManager.Update(&house, "status")
+	return err
+}
+
+func GetHouseByIdNoPublisher(id int64) (house models.HouseModel, err error) {
+	qs := models.OrmManager.QueryTable(house)
+	err = qs.Filter("id__exact", id).One(&house)
+	return house, err
+}
+
+func GetUserHouses(UserId int64) (houses []models.HouseModel) {
+	models.OrmManager.QueryTable(models.HouseModel{}).Filter("Publisher__Id", UserId).RelatedSel("publisher").All(&houses)
+	return houses
+}
+
+func getHouseByForm(form houseform.HouseAddForm) models.HouseModel {
 	jsonImages, _ := json.Marshal(form.Images)
 	FacilityList, _ := json.Marshal(form.FacilityList)
 	ProvinceCityRegion := form.ProvinceCityRegion
@@ -108,10 +126,23 @@ func CreateHouse(form houseform.HouseAddForm, Publisher models.AccountModel) (er
 		Imgs:         string(jsonImages),
 		Facilities:   string(FacilityList),
 		CanShortRent: form.ShortRent,
-		Publisher:    &Publisher,
 		Status:       model_consts.HOUSE_CHECKING,
 	}
+	return house
+}
+
+func CreateHouse(form houseform.HouseAddForm, Publisher models.AccountModel) (err error) {
+	house := getHouseByForm(form)
+	house.Publisher = &Publisher
 	_, err = models.OrmManager.Insert(&house)
+	return err
+}
+
+func UpdateHouse(HouseId int64, form houseform.HouseAddForm, Publisher models.AccountModel) (err error) {
+	house := getHouseByForm(form)
+	house.Id = HouseId
+	house.Publisher = &Publisher
+	_, err = models.OrmManager.Update(&house)
 	return err
 }
 

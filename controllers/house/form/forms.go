@@ -13,7 +13,9 @@ type HouseAddForm struct {
 	Longitude          string   `json:"longitude" validate:"required" message:"required: 未找到该位置的详细信息，换个地址试试~"`
 	ShortRent          bool     `json:"short_rent"`
 	Resident           string   `json:"resident"`
-	Images             []string `json:"img" validate:"required" message:"required: 请上传图片"`
+	Images             []string `json:"imgs" validate:"required" message:"required: 请上传图片"`
 	ProvinceCityRegion []string `json:"region" validate:"required" message:"required: 请选择房源位置"`
 	FacilityList       []string `json:"facility_list"`
+	// 编辑时传递
+	HouseId int64 `json:"house_id"`
 }

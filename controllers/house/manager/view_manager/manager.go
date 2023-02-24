@@ -50,32 +50,40 @@ func BuildHouseInfo(house models.HouseModel) interface{} {
 	json.Unmarshal([]byte(house.Imgs), &Imgs)
 	json.Unmarshal([]byte(house.Facilities), &Facilities)
 	// 这里重新赋值返回，便于后续过滤操作
+	houseTypeValue := house.HouseType
+	ApartmentValue := house.Apartment
 	house.Apartment = consts.ApartMentTypeMap[house.Apartment]
 	house.HouseType = consts.RentTypeMap[house.HouseType]
 	houseInfo := map[string]interface{}{
-		"id":             house.Id,
-		"title":          house.Title,
-		"desc":           house.Desc,
-		"address":        house.Address,
-		"region":         house.Region,
-		"city":           house.City,
-		"status":         house.Status,
-		"status_verbose": statusVerbose,
-		"house_type":     consts.ApartMentTypeMap[house.Apartment],
-		"apartment":      consts.ApartMentTypeMap[house.Apartment],
-		"short_rent":     ShortRent,
-		"video_url":      house.VideoUrl,
-		"user_id":        house.Publisher.Id,
-		"longitude":      house.Longitude,
-		"latitude":       house.Latitude,
-		"imgs":           Imgs,
-		"price":          house.Price,
-		"facilities":     Facilities,
-		"create_time":    datetime.DateTimeToStr(house.CreatedTime),
-		"last_modified":  datetime.DateTimeToStr(house.LastModified),
-		"is_delicate":    house.IsDelicate,
-		"tags":           BuildHouseTags(house),
-		"tags_conf":      BuildHouseElement(house),
+		"id":               house.Id,
+		"title":            house.Title,
+		"desc":             house.Desc,
+		"address":          house.Address,
+		"region":           house.Region,
+		"province":         house.Province,
+		"city":             house.City,
+		"status":           house.Status,
+		"status_verbose":   statusVerbose,
+		"house_type":       house.HouseType,
+		"house_type_value": houseTypeValue,
+		"apartment_value":  ApartmentValue,
+		"apartment":        house.Apartment,
+		"short_rent":       ShortRent,
+		"can_short_rent":   house.CanShortRent,
+		"video_url":        house.VideoUrl,
+		"user_id":          house.Publisher.Id,
+		"longitude":        house.Longitude,
+		"latitude":         house.Latitude,
+		"imgs":             Imgs,
+		"storey":           house.Storey,
+		"area":             house.Area,
+		"price":            house.Price,
+		"facilities":       Facilities,
+		"create_time":      datetime.DateTimeToStr(house.CreatedTime),
+		"last_modified":    datetime.DateTimeToStr(house.LastModified),
+		"is_delicate":      house.IsDelicate,
+		"tags":             BuildHouseTags(house),
+		"tags_conf":        BuildHouseElement(house),
 	}
 	publisher := house.Publisher
 	houseInfo["publisher"] = map[string]string{
@@ -103,6 +111,7 @@ var TagElementList = map[string]string{
 	"Direction":    "朝向",
 	"Apartment":    "房型",
 	"Area":         "面积",
+	"Storey":       "楼层",
 	"BedroomType":  "卧室",
 	"CanShortRent": "可短租",
 	"PayMethod":    "支付方式",
@@ -112,6 +121,7 @@ func BuildHouseElement(house models.HouseModel) map[string]interface{} {
 	result := map[string]interface{}{}
 	tagsArray := []string{
 		"Price",
+		"Storey",
 		"Apartment",
 		//"Direction",
 		//"OwnerRent",
