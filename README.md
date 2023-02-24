@@ -29,6 +29,18 @@ oss_region_host=https://bucket_name.oss-cn-shenzhen.aliyuncs.com
 db_port=3306
 db_database=xxx
 
+
+#邮件服务器
+email_host = "smtp.qq.com"
+#服务端口
+email_port = 587
+#发件人昵称
+email_senderName = "xxx"
+#发件人邮箱
+email_user = "xxx@qq.com"
+#发件人授权码
+email_password = "xxxx"
+
 [dev]
 httpaddr = 127.0.0.1
 APPID=xxx # 小程序appid
