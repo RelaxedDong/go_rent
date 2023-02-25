@@ -33,6 +33,8 @@ func init() {
 	beego.Router("/api/house/search", &house_api.Controller{}, "Get:SearchHouse")
 	beego.Router("/api/house/nearby_houses", &house_api.Controller{}, "Get:NearbyHouses")
 	beego.Router("/api/house/detail/:house_id([0-9]+)", &house_api.Controller{}, "Get:HouseDetail")
+	// 房源刷新
+	beego.Router("/api/house/house_refresh", &house_api.Controller{}, "Post:HouseFresh")
 	// pc/m
 	beego.Router("/detail/:house_id([0-9]+)", &web.Controller{}, "Get:HouseDetail")
 	beego.Router("/ask_rent", &web.Controller{}, "Get:AskRentIndex")

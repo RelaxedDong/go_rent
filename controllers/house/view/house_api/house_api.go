@@ -10,13 +10,31 @@ import (
 	houseform "rent_backend/controllers/house/form"
 	"rent_backend/controllers/house/manager/db_manager"
 	"rent_backend/controllers/house/manager/view_manager"
+	"rent_backend/models"
 	"rent_backend/utils"
 	"rent_backend/utils/email"
 	"strconv"
+	"time"
 )
 
 type Controller struct {
 	controllers.BaseController
+}
+
+func (request *Controller) GetAndCheckHouse() models.HouseModel {
+	// 为了方便校验房源权限
+	request.LoginRequired()
+	_, WxUser := request.GetWxUser()
+	postData := request.GetPostBody()
+	houseId, ok := postData["houseid"]
+	if !ok {
+		request.RestFulParamsError("缺少必要参数 houseid ")
+	}
+	house, err := db_manager.GetHouseByIdNoPublisher(int64(houseId.(float64)))
+	if err != nil || house.Publisher.Id != WxUser.Id {
+		request.RestFulParamsError(consts.ErrorMsgHouseNotExists)
+	}
+	return house
 }
 
 func (request *Controller) CityListConf() {
@@ -158,20 +176,22 @@ func (request *Controller) HouseAddCheck() {
 }
 
 func (request *Controller) HouseDelete() {
-	request.LoginRequired()
-	_, WxUser := request.GetWxUser()
-	postData := request.GetPostBody()
-	houseId, ok := postData["houseid"]
-	if !ok {
-		request.RestFulParamsError(consts.ErrorMsgHouseNotExists)
-	}
-	house, err := db_manager.GetHouseByIdNoPublisher(int64(houseId.(float64)))
-	if err != nil || house.Publisher.Id != WxUser.Id {
-		request.RestFulParamsError(consts.ErrorMsgHouseNotExists)
-	}
-	err = db_manager.DeleteHouse(house)
+	house := request.GetAndCheckHouse()
+	err := db_manager.DeleteHouse(house)
 	if err != nil {
 		request.RestFulParamsError("删除失败:" + err.Error())
 	}
+	request.RestFulSuccess(map[string]interface{}{}, "")
+}
+
+func (request *Controller) HouseFresh() {
+	house := request.GetAndCheckHouse()
+	now := time.Now()
+	difHour := now.Sub(house.LastModified).Hours()
+	if difHour < 2 {
+		request.RestFulParamsError("曝光展示中，请稍后再试~")
+	}
+	house.CreatedTime = now
+	models.OrmManager.Update(&house)
 	request.RestFulSuccess(map[string]interface{}{}, "")
 }

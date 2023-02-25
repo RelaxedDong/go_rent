@@ -1,15 +1,25 @@
 package datetime
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
-func DateTimeToStr(t time.Time) (timeStr string) {
+func TimeToStr(t time.Time) (timeStr string) {
 	return t.Format("2006-01-02 15:04:05")
 }
 
-//def datetime_to_str(date, date_format=FORMAT_DATETIME, process_none=False):
-//    """
-//    convert {@see datetime} into date string ('2011-01-12')
-//    """
-//    if process_none and date is None:
-//        return ''
-//    return date.strftime(date_format)
+func GetLastLoginActiveText(lastLogin time.Time) string {
+	Duration := time.Now().Sub(lastLogin)
+	Minutes, Hour := Duration.Minutes(), Duration.Hours()
+	switch {
+	case Minutes < 20:
+		return "刚刚来过"
+	case Minutes < 60:
+		return fmt.Sprintf("%d 分钟前来过", int64(Minutes))
+	case Hour < 24:
+		return fmt.Sprintf("%d 小时前来过", int64(Hour))
+	default:
+		return fmt.Sprintf("%d 天前来过", int64(Hour/24))
+	}
+}
