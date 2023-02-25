@@ -4,13 +4,14 @@ import (
 	"github.com/astaxie/beego"
 	"rent_backend/controllers/account"
 	"rent_backend/controllers/common"
-	"rent_backend/controllers/house"
 	"rent_backend/controllers/house/view/house_api"
+	"rent_backend/controllers/web"
 	"rent_backend/middleware"
 )
 
 func init() {
 	middleware.CheckLogin()
+
 	beego.Router("/api/account/login", &account.Controller{}, "Post:Login")
 	beego.Router("/api/account/user_info", &account.Controller{}, "Post:BindUserInfo")
 	beego.Router("/api/account/bind_phone", &account.Controller{}, "Post:BindPhone")
@@ -33,5 +34,6 @@ func init() {
 	beego.Router("/api/house/nearby_houses", &house_api.Controller{}, "Get:NearbyHouses")
 	beego.Router("/api/house/detail/:house_id([0-9]+)", &house_api.Controller{}, "Get:HouseDetail")
 	// pc/m
-	beego.Router("/detail/:house_id([0-9]+)", &house.Controller{}, "Get:HouseDetail")
+	beego.Router("/detail/:house_id([0-9]+)", &web.Controller{}, "Get:HouseDetail")
+	beego.Router("/ask_rent", &web.Controller{}, "Get:AskRentIndex")
 }

@@ -1,4 +1,4 @@
-package house
+package web
 
 import (
 	"rent_backend/consts"
@@ -23,4 +23,8 @@ func (request *Controller) HouseDetail() {
 	request.Data["default_image"] = consts.DEFAULT_NONE_IMAGE
 	request.Data["mini_img"], _ = weixin.GetPathImgByHouseId(HouseId)
 	request.TplName = "detail.html"
+}
+
+func (request *Controller) AskRentIndex() {
+	request.TplName = "ask_rent.html"
 }

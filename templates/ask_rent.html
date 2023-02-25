@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>求租论坛</title>
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport"/>
+    <meta content="yes" name="apple-mobile-web-app-capable"/>
+    <meta content="black" name="apple-mobile-web-app-status-bar-style"/>
+    <meta content="telephone=no" name="format-detection"/>
+    <link href="/static/css/ask_rent_style.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/tab.js"></script>
+
+</head>
+<body>
+<section class="aui-flexView">
+    <section class="aui-scrollView">
+        <div class="aui-answers-head" id="tp">
+            <img src="/static/img/head.png" alt="">
+            <div class="aui-answers-text">
+                <p>房子是租来的，但生活是自己的</p>
+                <p>即使是租房，也可以过有诗和远方的生活～</p>
+            </div>
+        </div>
+        <div class="aui-list-row">
+            <div class="aui-flex">
+                <div class="aui-flex-box">
+                    <h2><i class="icon icon-news"></i>求租群</h2>
+                </div>
+                <div class="aui-arrow">
+                    <a href="JavaScript:;">更多</a>
+                </div>
+            </div>
+            <div class="aui-flex" style="padding-top:0">
+                <div class="aui-flex-box">
+                    <div class="aui-img-show">
+                        <a href="javascript:;">
+                            <div class="aui-img-show-item">
+                                <img src="/static/img/ad-fl-001.png" alt="">
+                                <p>#xxx#</p>
+                            </div>
+                        </a>
+                        <a href="javascript:;" class="aui-img-show-sm">
+                            <div class="aui-img-show-item">
+                                <img src="/static/img/ad-fr-001.png" alt="">
+                                <p>#xxx#</p>
+                            </div>
+                            <div class="aui-img-show-item">
+                                <img src="/static/img/ad-fr-002.png" alt="">
+                                <p>#xxx#</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="divHeight"></div>
+        <div class="aui-tab" data-ydui-tab>
+            <ul class="tab-nav ">
+                <li class="tab-nav-item tab-active">
+                    <a href="javascript:;">
+                        <span>最新求租</span>
+                    </a>
+                </li>
+                <li class="tab-nav-item">
+                    <a href="javascript:;">
+                        <span>我要找房</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="tab-panel" style="padding-bottom:55px;">
+                <div class="tab-panel-item tab-active">
+                    {{ range $record := .ask_records}}
+                    <a href="{{ $record.link }}" class="aui-answers-coll">
+                        <div class="aui-flex">
+                            <div class="aui-coll-user">
+                                <img src="{{ $record.avatarUrl }}" alt="">
+                            </div>
+                            <div class="aui-flex-box">
+                                <h3> {{ $record.nickname }}</h3>
+                                <h6>{{ $record.created_time }}</h6>
+                            </div>
+                        </div>
+                        <div class="aui-text-introduce b-line">
+                            <h2>{{ $record.title }}</h2>
+                            <p>
+                                {{ $record.desc }}
+                            </p>
+                        </div>
+                        <div class="aui-flex">
+                            <div class="aui-flex-box">
+                                <span>#{{ $record.city }}#</span>
+                            </div>
+                        </div>
+
+                    </a>
+                    {{ end }}
+                </div>
+                <div class="tab-panel-item">
+                    <a href="weixin://dl/business/?t=DVYIyPX6uSe" class="aui-answers-coll">
+                        <div class="aui-flex">
+                            <div class="aui-coll-user">
+                                <img src="/static/img/mayi.png" alt="">
+                            </div>
+                            <div class="aui-flex-box">
+                                <h3> 蚁租君</h3>
+                                <h6>刚刚 来自Android客户端</h6>
+                            </div>
+                        </div>
+                        <div class="aui-text-introduce b-line">
+                            <h2>点击开始选房
+                            </h2>
+                            <p>我们各城市提供了海量的房源供您选择，您可很轻松找到满意的、实惠的符合自己的房源~</p>
+                        </div>
+                        <div class="aui-flex">
+                            <div class="aui-flex-box">
+                                <span>#找室友 、整租、单间、一室一厅...#</span>
+                            </div>
+                            <div class="aui-icon-list">
+                                <h5><i class="icon icon-coll"></i>9999+</h5>
+                                <h5><i class="icon icon-plus"></i>9999+</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+    </section>
+    <footer class="aui-footer aui-footer-fixed">
+        <a href="#tp" class="aui-tabBar-item aui-tabBar-item-active">
+                <span class="aui-tabBar-item-icon">
+                    <i class="icon icon-credit"></i>
+                </span>
+            <span class="aui-tabBar-item-text">发布求租</span>
+        </a>
+    </footer>
+</section>
+
+</body>
+</html>
