@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>房源数据统计</title>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/static/css/iconfont.css" rel="stylesheet" type="text/css"/>
+    <script src="/static/js/chart.js"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <style>
+        .counter-section i { display:block; margin:0 0 10px; font-size: 3rem; opacity: 0.4}
+        .counter-section span.counter { font-size:40px; color:#000; line-height:60px; display:block; font-family: "Oswald",sans-serif; letter-spacing: 2px}
+        .counter-title{ font-size:12px; letter-spacing:2px; text-transform: uppercase}
+        .margin-top-lg{
+            margin: 20px 0;
+        }
+        /*测试*/
+        .card-counter .count-name{
+            position: absolute;
+            right: 35px;
+            top: 65px;
+            font-style: italic;
+            text-transform: capitalize;
+            opacity: 0.5;
+            display: block;
+            font-size: 18px;
+        }
+        .card-people {
+            position: relative;
+            padding-top: 20px;
+        }
+        .card-people img {
+            width: 100%;
+        }
+        .card-people .weather-info {
+            position: absolute;
+            top: 30px;
+            left: 24px;
+        }
+
+    </style>
+    <script>
+        $(document).ready(function() {
+
+            $('.counter').each(function () {
+                $(this).prop('Counter',0).animate({
+                    Counter: $(this).text()
+                }, {
+                    duration: 4000,
+                    easing: 'swing',
+                    step: function (now) {
+                        $(this).text(Math.ceil(now));
+                    }
+                });
+            });
+
+        });
+    </script>
+</head>
+<body>
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="card-people mt-auto">
+                <img src="/static/img/statistics.svg" alt="people">
+                <div class="weather-info">
+                    <div class="d-flex">
+                        <div>
+                            <h2 class="mb-0 font-weight-normal"><i class="icon-sun mr-2"></i>实时统计</h2>
+                        </div>
+                        <div class="ml-2">
+<!--                            <h4 class="location font-weight-normal">您好</h4>-->
+                            <h6 class="font-weight-normal">{{.Now}}</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row margin-top-lg">
+        <div class="row">
+            <section class="wow fadeIn animated" style="visibility: visible; animation-name: fadeIn;">
+                <div class="container">
+                    <div class="row">
+                        <!-- counter -->
+                        <div class="col-xs-6 col-sm-6 bottom-margin text-center counter-section wow fadeInUp sm-margin-bottom-ten animated" data-wow-duration="300ms" style="visibility: visible; animation-duration: 300ms; animation-name: fadeInUp;">
+                            <i class="iconfont icon-chengshilianji"></i>
+                            <span id="anim-number-pizza" class="counter-number"></span>
+                            <span class="timer counter alt-font appear" data-to="980" data-speed="7000">{{.statistics.housesCnt}}</span>
+                            <p class="counter-title">房源数量</p>
+                        </div>
+                        <!-- end counter -->
+                        <!-- counter -->
+                        <div class="col-xs-6 col-sm-6 bottom-margin text-center counter-section wow fadeInUp sm-margin-bottom-ten animated" data-wow-duration="600ms" style="visibility: visible; animation-duration: 600ms; animation-name: fadeInUp;">
+                            <i class="iconfont icon-shuliang"></i>
+                            <span class="timer counter alt-font appear" data-to="980" data-speed="7000">{{.statistics.allViewCnt}}</span>
+                            <span class="counter-title">浏览总数</span>
+                        </div>
+                        <!-- end counter -->
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+    <div class="row margin-top-lg">
+        <div class="col-xs-12 col-md-12">
+            <canvas id="myChart" width="400" height="200"></canvas>
+        </div>
+        <script>
+            const ctx = document.getElementById('myChart');
+            const labels = {{.statistics.houseTitles}};  // 设置 X 轴上对应的标签
+            const data = {
+                labels: labels,
+                datasets: [{
+                    label: '房源浏览量',
+                    data: {{.statistics.houseViewCnt}},
+                    backgroundColor: [      // 设置每个柱形图的背景颜色
+                        "rgba(75, 192, 192, 0.5)"
+                    ],
+                    borderColor: ["rgb(75, 192, 192)"
+                    ],
+                    borderWidth: 1     // 设置线条宽度
+                }]
+            };
+            const config = {
+                type: 'bar', // 设置图表类型
+                data: data,  // 设置数据集
+                options: {
+                    indexAxis: 'y',
+                },
+            };
+            const myChart = new Chart(ctx, config);
+        </script>
+    </div>
+</div>
+</body>
+</html>

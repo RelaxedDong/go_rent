@@ -148,7 +148,7 @@ func InitOrmConfig() {
 }
 
 func init() {
-	//orm.Debug = true
+	orm.Debug = true
 	InitOrmConfig()
 	//创建表
 	models := []interface{}{

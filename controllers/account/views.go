@@ -125,9 +125,9 @@ func (request *Controller) Collects() {
 	var houses []models.HouseModel
 	switch opType {
 	case "collect":
-		houses, _ = UserDbManager.GetUserCollects(WxUser.Id, start, consts.DefaultPageSize)
+		houses = UserDbManager.GetUserCollects(WxUser.Id, start, consts.DefaultPageSize)
 	case "history":
-		houses, _ = UserDbManager.GetUserHistoryList(WxUser.Id, start, consts.DefaultPageSize)
+		houses = UserDbManager.GetUserHistoryList(WxUser.Id, start, consts.DefaultPageSize)
 	}
 	request.RestFulSuccess(map[string]interface{}{"houses": view_manager.GetHouseListInfo(houses)}, "")
 }

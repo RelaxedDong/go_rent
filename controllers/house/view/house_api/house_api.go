@@ -78,6 +78,7 @@ func (request *Controller) HouseDetail() {
 		result["is_collect"] = UserDbManager.IsUserCollectHouse(HouseId, WxUser.Id)
 		go UserDbManager.GetOrCreateUserHistory(HouseInfo, WxUser)
 	}
+	go db_manager.IncreaseHouseViewCnt(&HouseInfo)
 	request.RestFulSuccess(result, "")
 }
 

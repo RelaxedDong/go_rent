@@ -38,4 +38,5 @@ func init() {
 	// pc/m
 	beego.Router("/detail/:house_id([0-9]+)", &web.Controller{}, "Get:HouseDetail")
 	beego.Router("/ask_rent", &web.Controller{}, "Get:AskRentIndex")
+	beego.Router("/statistics", &web.Controller{}, "Get:RentStatistics")
 }

@@ -10,7 +10,14 @@ import (
 func CheckLogin() {
 	//登录认证中间件过滤器
 	var login = func(ctx *context.Context) {
-		if JwtToken := ctx.Input.Header("token"); JwtToken != "" {
+		FromMiniH5 := ctx.Input.Query("mini_h5")
+		var JwtToken string
+		if FromMiniH5 != "" {
+			JwtToken = ctx.Input.Query("jwt_token")
+		} else {
+			JwtToken = ctx.Input.Header("token")
+		}
+		if JwtToken != "" {
 			if Claims, parseTokenErr := jwt.ParseToken(JwtToken); parseTokenErr == nil {
 				ctx.Input.SetData("openId", Claims.OpenId)
 				if account, userError := UserDbManager.GetUserByOpenId(Claims.OpenId); userError == nil {

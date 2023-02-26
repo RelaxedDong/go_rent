@@ -6,7 +6,9 @@ import (
 	"rent_backend/controllers/house/manager/db_manager"
 	"rent_backend/controllers/house/manager/view_manager"
 	"rent_backend/third_party_service/weixin"
+	"rent_backend/utils/datetime"
 	"strconv"
+	"time"
 )
 
 type Controller struct {
@@ -27,4 +29,12 @@ func (request *Controller) HouseDetail() {
 
 func (request *Controller) AskRentIndex() {
 	request.TplName = "ask_rent.html"
+}
+
+func (request *Controller) RentStatistics() {
+	request.LoginRequired()
+	_, WxUser := request.GetWxUser()
+	request.Data["statistics"] = db_manager.GetUserStatistics(WxUser.Id)
+	request.Data["Now"] = datetime.TimeToStr(time.Now())
+	request.TplName = "house_statistics.html"
 }

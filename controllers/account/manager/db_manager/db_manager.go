@@ -100,26 +100,35 @@ func DeleteAllCollectsByUserId(Publisher models.AccountModel) {
 	models.OrmManager.QueryTable(models.CollectModel{}).Filter("Publisher", Publisher).Delete()
 }
 
-func GetUserCollects(UserId int64, offset uint64, limit uint64) ([]models.HouseModel, error) {
-	var collects []models.CollectModel
-	_, err := models.OrmManager.QueryTable(models.CollectModel{}).Filter("publisher",
-		UserId).OrderBy("-created_time").Limit(limit, offset).RelatedSel("house").All(&collects)
+func GetHousesByIds(Ids []int64) []models.HouseModel {
 	houses := []models.HouseModel{}
-	for _, i2 := range collects {
-		houses = append(houses, *i2.House)
+	if len(Ids) == 0 {
+		return houses
 	}
-	return houses, err
+	models.OrmManager.QueryTable(models.HouseModel{}).Filter("Id__in", Ids).RelatedSel("publisher").All(&houses)
+	return houses
 }
 
-func GetUserHistoryList(UserId int64, offset uint64, limit uint64) ([]models.HouseModel, error) {
-	var records []models.ViewHistory
-	_, err := models.OrmManager.QueryTable(models.ViewHistory{}).Filter("publisher",
-		UserId).OrderBy("-created_time").Limit(limit, offset).RelatedSel("house").All(&records)
-	houses := []models.HouseModel{}
-	for _, i2 := range records {
-		houses = append(houses, *i2.House)
+func GetUserCollects(UserId int64, offset uint64, limit uint64) []models.HouseModel {
+	var collects []models.CollectModel
+	models.OrmManager.QueryTable(models.CollectModel{}).Filter("publisher",
+		UserId).OrderBy("-created_time").Limit(limit, offset).All(&collects, "House")
+	houseIds := []int64{}
+	for _, i2 := range collects {
+		houseIds = append(houseIds, i2.House.Id)
 	}
-	return houses, err
+	return GetHousesByIds(houseIds)
+}
+
+func GetUserHistoryList(UserId int64, offset uint64, limit uint64) []models.HouseModel {
+	var collects []models.ViewHistory
+	models.OrmManager.QueryTable(models.ViewHistory{}).Filter("publisher",
+		UserId).OrderBy("-created_time").Limit(limit, offset).All(&collects, "House")
+	houseIds := []int64{}
+	for _, i2 := range collects {
+		houseIds = append(houseIds, i2.House.Id)
+	}
+	return GetHousesByIds(houseIds)
 }
 
 func IsUserCollectHouse(HouseId int64, UserId int64) (isExist bool) {

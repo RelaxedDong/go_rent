@@ -99,6 +99,25 @@ func GetUserHouses(UserId int64) (houses []models.HouseModel) {
 	return houses
 }
 
+func GetUserStatistics(UserId int64) interface{} {
+	var allViewCnt, housesCnt uint32
+	houses := []models.HouseModel{}
+	houseTitles, houseViewCnt := []string{}, []uint32{}
+	models.OrmManager.QueryTable(models.HouseModel{}).Filter("Publisher__Id", UserId).All(&houses)
+	for _, house := range houses {
+		allViewCnt += house.ViewCount
+		housesCnt += 1
+		houseTitles = append(houseTitles, house.Title)
+		houseViewCnt = append(houseViewCnt, house.ViewCount)
+	}
+	return map[string]interface{}{
+		"allViewCnt":   allViewCnt,
+		"housesCnt":    housesCnt,
+		"houseTitles":  houseTitles,
+		"houseViewCnt": houseViewCnt,
+	}
+}
+
 func getHouseByForm(form houseform.HouseAddForm) models.HouseModel {
 	jsonImages, _ := json.Marshal(form.Images)
 	FacilityList, _ := json.Marshal(form.FacilityList)
@@ -144,6 +163,11 @@ func UpdateHouse(HouseId int64, form houseform.HouseAddForm, Publisher models.Ac
 	house.Publisher = &Publisher
 	_, err = models.OrmManager.Update(&house)
 	return err
+}
+
+func IncreaseHouseViewCnt(house *models.HouseModel) {
+	house.ViewCount += 1
+	models.OrmManager.Update(house)
 }
 
 func GetBannerByQuery(city string, positions []string) (banners []models.BannerModel, err error) {
