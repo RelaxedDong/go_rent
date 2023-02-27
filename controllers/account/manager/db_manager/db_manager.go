@@ -38,26 +38,12 @@ func GetOrCreateUser(userInfo accountform.UserInfoForm) (IsNew bool, UserId int6
 	return IsNew, UserId
 }
 
-func UpdateUserInfo(userInfo models.AccountModel, wechat string, phone string, SessionKey string, updateLoginTime bool) {
-	user := models.AccountModel{Id: userInfo.Id}
-	var updatedFields []string
-	if wechat != "" {
-		user.Wechat = wechat
-		updatedFields = append(updatedFields, "wechat")
-	}
-	if phone != "" {
-		user.Phone = phone
-		updatedFields = append(updatedFields, "phone")
-	}
-	if SessionKey != "" {
-		user.SessionKey = SessionKey
-		updatedFields = append(updatedFields, "session_key")
-	}
+func UpdateUserInfo(userInfo models.AccountModel, updatedFields []string, updateLoginTime bool) {
 	if updateLoginTime {
-		user.LastLogin = time.Now()
+		userInfo.LastLogin = time.Now()
 		updatedFields = append(updatedFields, "last_login")
 	}
-	models.OrmManager.Update(&user, updatedFields...)
+	models.OrmManager.Update(&userInfo, updatedFields...)
 }
 
 func GetOrCreateUserFavor(house models.HouseModel, account models.AccountModel) (isNew bool, RecordId int64) {

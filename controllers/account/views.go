@@ -36,7 +36,10 @@ func (request *Controller) Login() {
 		request.RestFulSuccess(map[string]interface{}{"token": jwtToken}, userError.Error())
 	}
 	data["user_id"] = account.Id
-	UserDbManager.UpdateUserInfo(account, "", "", SessionKey, true)
+	if SessionKey != "" {
+		account.SessionKey = SessionKey
+	}
+	UserDbManager.UpdateUserInfo(account, []string{"session_key"}, true)
 	// todo: is_superuser, finish_user_info字段舍弃？
 	request.RestFulSuccess(data, "")
 }
@@ -80,7 +83,23 @@ func (request *Controller) EditUserInfo() {
 	_, WxUser := request.GetWxUser()
 	var req accountform.EditUserInfoForm
 	request.RequestJsonFormat(&req)
-	UserDbManager.UpdateUserInfo(WxUser, req.Wechat, req.Phone, "", false)
+	if req.AvatarUrl != "" {
+		WxUser.AvatarUrl = req.AvatarUrl
+	}
+	if req.Nickname != "" {
+		WxUser.NickName = req.Nickname
+	}
+	if req.Gender != "" {
+		WxUser.Gender = req.Gender
+	}
+	if req.Wechat != "" {
+		WxUser.Wechat = req.Wechat
+	}
+	if req.Phone != "" {
+		WxUser.Phone = req.Phone
+	}
+	updateFields := []string{"phone", "avatarUrl", "gender", "wechat", "nickname"}
+	UserDbManager.UpdateUserInfo(WxUser, updateFields, false)
 	request.RestFulSuccess(map[string]interface{}{}, "")
 }
 
@@ -112,7 +131,8 @@ func (request *Controller) BindPhone() {
 	if err != nil {
 		request.RestFulParamsError(err.Error())
 	}
-	UserDbManager.UpdateUserInfo(WxUser, "", phone, "", false)
+	WxUser.Phone = phone
+	UserDbManager.UpdateUserInfo(WxUser, []string{"phone"}, false)
 	request.RestFulSuccess(map[string]interface{}{"phone": phone}, "")
 }
 
