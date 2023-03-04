@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 	"rent_backend/utils"
@@ -133,9 +134,11 @@ var OrmManager orm.Ormer
 //Auth_User -> auth__user 两个下划线
 //DB_AuthUser -> d_b__auth_user
 
-func InitOrmConfig() {
+func InitDriverConfig() {
 	orm.RegisterDriver("mysql", orm.DRMySQL)
 	// todo: 提取配置文件
+	db_host := beego.AppConfig.String("db_host")
+	logs.Info("db_host is" + db_host)
 	dataSource := "{db_user}:{db_password}@tcp({db_host}:{db_port})/{db_database}?charset=utf8&loc=Local"
 	uri := utils.FormatString(dataSource, map[string]interface{}{
 		"db_user":     beego.AppConfig.String("db_user"),
@@ -147,9 +150,9 @@ func InitOrmConfig() {
 	orm.RegisterDataBase("default", "mysql", uri, 30)
 }
 
-func init() {
-	orm.Debug = true
-	InitOrmConfig()
+func InitOrmConfig() {
+	//orm.Debug = true
+	InitDriverConfig()
 	//创建表
 	models := []interface{}{
 		new(AccountModel), new(HouseModel), new(BannerModel), new(CollectModel),

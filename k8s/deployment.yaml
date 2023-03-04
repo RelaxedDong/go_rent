@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rent-backend
+spec:
+    replicas: 2
+    selector:
+      matchLabels:
+        app: rent_backend
+    template:
+      metadata:
+        labels:
+          app: rent_backend
+      spec:
+        volumes:
+          - name: config-volume
+            configMap:
+              name: devconf
+        containers:
+          - name: rent-backend
+            image: go_rent
+            resources:
+            command: ["/server"]
+            imagePullPolicy: Never
+            ports:
+              - containerPort: 8000
+                protocol: TCP
+            volumeMounts:
+              - mountPath: /conf/dev.env # 代表要挂载到容器的位置
+                name: config-volume
+                subPath: dev.env # 代表选择要挂载的项, 对应items.path的值，如果不指定代表全挂
+
+#              volumeMounts:
+#                - name: test-path
+#                  mountPath: /a/b/c
+#                  subPath: d   在c目录中你有一些文件1.txt，2.txt然后子路径将重写这些内容c并创建新目录d

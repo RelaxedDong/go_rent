@@ -3,12 +3,27 @@ package main
 import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
+	"github.com/joho/godotenv"
+	"path/filepath"
+	"rent_backend/models"
 	_ "rent_backend/routers"
 	_ "rent_backend/template_func"
 	"rent_backend/utils"
 )
 
+func InitEnv() {
+	mode := beego.AppConfig.String("runmode")
+	env := filepath.Join("conf", mode+".env")
+	configs, _ := godotenv.Read(env)
+	for key, value := range configs {
+		beego.AppConfig.Set(key, value)
+	}
+}
+
 func init() {
+	InitEnv()
+	models.InitOrmConfig()
+	logs.Info("logfilepath is" + beego.AppConfig.String("logfilepath"))
 	filename := `{"filename": "{filename}","separate":["error", "debug"],"daily":true,"maxdays":7,"color":true}`
 	path := utils.FormatString(filename, map[string]interface{}{
 		"filename": beego.AppConfig.String("logfilepath"),

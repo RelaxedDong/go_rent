@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rent-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rent_backend
+  template:
+    metadata:
+      labels:
+        app: rent_backend
+    spec:
+      volumes:
+        - name: config-volume
+          configMap:
+            name: devconf
+#            items:
+#              - key: dev.env
+#                path: conf/dev.env
+      containers:
+        - name: rent-backend
+          image: go_rent
+          resources:
+          command: [ "/bin/sh","-c" ]
+          args: [ "-c", "while true; do echo hello; sleep 10;done" ]
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+#          volumeMounts:
+#            - mountPath: /conf/dev.env # 无configMap.items，结果：app.conf  dev.env（dev.env）   mytest
+#              name: config-volume
+
+#          volumeMounts:
+#            - mountPath: /conf/dev.env # 无configMap.items，结果：app.conf  dev.env mytest
+#              name: config-volume
+#              subPath: conf/dev.env
+
+#          volumeMounts:
+#            - mountPath: /conf/dev.env
+#              name: config-volume
+#              subPath: . # # 无configMap.items，结果：app.conf  dev.env（dev.env）   mytest
+
+          volumeMounts:
+            - mountPath: /conf/dev.env # 无configMap.items，结果：app.conf  dev.env mytest
+              name: config-volume
+              subPath: dev.env
+
+#              volumeMounts:
+#                - name: test-path
+#                  mountPath: /a/b/c
+#                  subPath: d   在c目录中你有一些文件1.txt，2.txt然后子路径将重写这些内容c并创建新目录d

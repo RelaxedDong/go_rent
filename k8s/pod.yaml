@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rent_backend_pod
+spec:
+    containers:
+        -name: rent_backend
+        image: rent_backend:v1

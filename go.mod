@@ -8,6 +8,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/gookit/validate v1.4.6
+	github.com/joho/godotenv v1.5.1
 	github.com/smartystreets/goconvey v1.6.4
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )

@@ -1,0 +1,11 @@
+*.md
+.gitattributes
+LICENSE
+!README*.md
+README-secret.md
+.git
+logs/*.log
+.idea
+conf/server/
+conf/*.env
+test/
