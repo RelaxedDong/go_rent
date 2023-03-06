@@ -10,8 +10,8 @@ RUN go mod download
 RUN go build -v -o server
 
 FROM alpine
-COPY --from=builder /app/server /server
-COPY --from=builder /app/conf /conf
+WORKDIR /app
+COPY --from=builder /app/* .
 # 声明服务端口(不起实际作用，只是一个标识，具体启动端口是容器中程序的配置)
 EXPOSE 8000
 # docker build -t go_rent .

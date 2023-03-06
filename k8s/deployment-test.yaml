@@ -44,7 +44,7 @@ spec:
 #              subPath: . # # 无configMap.items，结果：app.conf  dev.env（dev.env）   mytest
 
           volumeMounts:
-            - mountPath: /conf/dev.env # 无configMap.items，结果：app.conf  dev.env mytest
+            - mountPath: /app/conf/dev.env # 无configMap.items，结果：app.conf  dev.env mytest
               name: config-volume
               subPath: dev.env
 

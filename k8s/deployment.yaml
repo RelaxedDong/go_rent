@@ -6,29 +6,37 @@ spec:
     replicas: 2
     selector:
       matchLabels:
-        app: rent_backend
+        app: rent-backend
     template:
+      # 这里是 Pod 模板
       metadata:
         labels:
-          app: rent_backend
+          app: rent-backend
       spec:
         volumes:
           - name: config-volume
             configMap:
               name: devconf
+#              items:
+#                - key: dev.env
+#                  path: app/conf/dev.env
         containers:
           - name: rent-backend
             image: go_rent
             resources:
-            command: ["/server"]
+#            lifecycle:
+#              postStart:
+#                exec:
+            # 可能会报错，因为在挂载dev.env前执行了
+            entrypoint: ["/app/server"]
             imagePullPolicy: Never
             ports:
               - containerPort: 8000
                 protocol: TCP
             volumeMounts:
-              - mountPath: /conf/dev.env # 代表要挂载到容器的位置
+              - mountPath: /app/conf/dev.env # 无configMap.items，结果：app.conf  dev.env mytest
                 name: config-volume
-                subPath: dev.env # 代表选择要挂载的项, 对应items.path的值，如果不指定代表全挂
+                subPath: dev.env
 
 #              volumeMounts:
 #                - name: test-path

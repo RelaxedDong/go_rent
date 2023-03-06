@@ -3,8 +3,11 @@ kind: Service
 metadata:
   name: go-rent-service
 spec:
-  type: ClusterIP
   ports:
-    - port: 8000
+    - protocol: TCP
+      port: 8888
+      targetPort: 8000
+      nodePort: 31000
+  type: LoadBalancer
   selector:
-    app: rent_backend
+    app: rent-backend
