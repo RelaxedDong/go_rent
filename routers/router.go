@@ -10,8 +10,8 @@ import (
 )
 
 func init() {
+	middleware.ProcessRequest()
 	middleware.CheckLogin()
-
 	beego.Router("/api/account/login", &account.Controller{}, "Post:Login")
 	beego.Router("/api/account/user_info", &account.Controller{}, "Post:BindUserInfo")
 	beego.Router("/api/account/bind_phone", &account.Controller{}, "Post:BindPhone")

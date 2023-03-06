@@ -12,54 +12,62 @@
 # 小程序端：
 https://github.com/RelaxedDong/rent_mini
 
-# 配置文件
+# Appconf 配置
 ```
-appname = 蚁租房
-httpport = 8000
-runmode = dev
-copyrequestbody = true
+# 放通用配置
+httpaddr=127.0.0.1
+appname=蚁租房
+httpport=8000
+runmode=dev
+copyrequestbody=true
 logfilepath=logs/service.log
 
-oss_access_key=xxx
-oss_secret_key=xxxx
 oss_upload_path=https://bucket_name.oss-cn-shenzhen.aliyuncs.com
 oss_region_host=https://bucket_name.oss-cn-shenzhen.aliyuncs.com
 
-
-db_port=3306
-db_database=xxx
-
-
 #邮件服务器
-email_host = "smtp.qq.com"
+email_host="smtp.qq.com"
 #服务端口
-email_port = 587
-#发件人昵称
-email_senderName = "xxx"
-#发件人邮箱
-email_user = "xxx@qq.com"
-#发件人授权码
-email_password = "xxxx"
+email_port=587
+```
 
-[dev]
-httpaddr = 127.0.0.1
-APPID=xxx # 小程序appid
-APP_SECRET=xxx # 小程序 secret
+`conf/dev.env or conf/pro.env`
+
+这里根据conf/app.conf runmode指定的模式动态获取环境变量文件，然后load到AppConfig里面，参考：<a href="init/init_env.go">初始化i配置</a>
+
+环境变量配置文件：
+```dotenv
+oss_access_key=xxxx
+oss_secret_key=xxx
+
+db_port=xxx
+db_database=xxx
 db_host=xxx
-db_user=xxx
+db_user=xxxx
 db_password=xxx
 
+#发件人昵称
+email_senderName="xx"
+#发件人邮箱
+email_user="xx@qq.com"
+#发件人授权码
+email_password="xxx"
 
-[pro]
-httpaddr = 127.0.0.1
+# 小程序AppID
 APPID=xxx
-APP_SECRET=xxx
-db_host=localhost
-db_user=xxx
-db_password=xxx
+APP_SECRET=xxxx
+
 ```
 
 # 部署
+
+
+### k8s
+...
+### docker-compose、docker-swarm
+...
+### supervisor+nginx
+
 1. 使用bee打包：`bee pack`
 2. 解压压缩包： `tar -zxvf go_rent.tar.gz`
 3. 使用supervisor管理进程

@@ -1,24 +1,21 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
 	UserDbManager "rent_backend/controllers/account/manager/db_manager"
 	"rent_backend/utils/jwt"
 )
 
+var CookieMaxAge = 60 * 60 * 24 * 14
+
 func CheckLogin() {
 	//登录认证中间件过滤器
 	var login = func(ctx *context.Context) {
-		FromMiniH5 := ctx.Input.Query("mini_h5")
-		var JwtToken string
-		if FromMiniH5 != "" {
-			JwtToken = ctx.Input.Query("jwt_token")
-		} else {
-			JwtToken = ctx.Input.Header("token")
-		}
+		JwtToken := ctx.Input.GetData("token")
 		if JwtToken != "" {
-			if Claims, parseTokenErr := jwt.ParseToken(JwtToken); parseTokenErr == nil {
+			if Claims, parseTokenErr := jwt.ParseToken(JwtToken.(string)); parseTokenErr == nil {
 				ctx.Input.SetData("openId", Claims.OpenId)
 				if account, userError := UserDbManager.GetUserByOpenId(Claims.OpenId); userError == nil {
 					// 给context对象绑定一个 AccountModel 对象，便于在视图里面直接获取到
@@ -27,22 +24,24 @@ func CheckLogin() {
 			}
 		}
 	}
-
-	//var loginRequired = func(ctx *context.Context) {
-	//	// 必须要登陆的情况 ---> 需要获取到WxUser对象
-	//	path := ctx.Request.URL.Path
-	//	fmt.Println("path", path)
-	//	if !utils.InStringArray(path, IgnoreLoginRequired) {
-	//		account := ctx.Input.GetData("WxUser")
-	//		if account == nil {
-	//			resp, _ := json.Marshal(map[string]interface{}{"code": consts.STATUS_CODE_400,
-	//				"msg": "获取用户失败，请重新授权绑定～",
-	//			})
-	//			ctx.Output.Body(resp)
-	//		}
-	//	}
-	//}
 	// 登录过滤器
-	beego.InsertFilter("/*", beego.BeforeRouter, login)
-	//beego.InsertFilter("/*", beego.BeforeRouter, loginRequired)
+	beego.InsertFilter("/*", beego.BeforeRouter, login, false)
+}
+
+func ProcessRequest() {
+	var SetCookie = func(ctx *context.Context) {
+		JwtToken := ctx.Input.Header("token") // 小程序来源
+		if JwtToken == "" {
+			JwtToken = ctx.GetCookie("token") // 从cookie中拿
+			fmt.Println("from cookie", JwtToken)
+			if JwtToken == "" {
+				JwtToken = ctx.Input.Query("jwt_token") // 小程序webview传递到h5
+			}
+		}
+		ctx.Input.SetData("token", JwtToken)
+		if JwtToken != "" {
+			ctx.SetCookie("token", JwtToken, CookieMaxAge, "/")
+		}
+	}
+	beego.InsertFilter("/*", beego.BeforeRouter, SetCookie, false)
 }
