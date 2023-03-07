@@ -13,6 +13,7 @@ func init() {
 	middleware.ProcessRequest()
 	middleware.CheckLogin()
 	beego.Router("/api/account/login", &account.Controller{}, "Post:Login")
+	beego.Router("/api/account/login", &account.Controller{}, "Post:Login")
 	beego.Router("/api/account/user_info", &account.Controller{}, "Post:BindUserInfo")
 	beego.Router("/api/account/bind_phone", &account.Controller{}, "Post:BindPhone")
 	beego.Router("/api/account/edit_info", &account.Controller{}, "Get:UserInfo")
@@ -36,6 +37,7 @@ func init() {
 	// 房源刷新
 	beego.Router("/api/house/house_refresh", &house_api.Controller{}, "Post:HouseFresh")
 	// pc/m
+	//beego.Router("/", &web.Controller{}, "Get:Index")
 	beego.Router("/detail/:house_id([0-9]+)", &web.Controller{}, "Get:HouseDetail")
 	beego.Router("/ask_rent", &web.Controller{}, "Get:AskRentIndex")
 	beego.Router("/statistics", &web.Controller{}, "Get:RentStatistics")

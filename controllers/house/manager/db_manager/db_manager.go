@@ -68,8 +68,10 @@ func GetHouseByQuery(city string, title string,
 		facilitiesFilter := strings.Join(facilitiesList, "|")
 		qs = qs.FilterRaw("facilities", "REGEXP '"+facilitiesFilter+"'")
 	}
-	if orderBy != "" {
-		qs = qs.OrderBy(orderBy)
+	if orderBy == "" {
+		qs = qs.OrderBy("-created_time")
+	} else {
+		qs = qs.OrderBy(orderBy, "-created_time")
 	}
 
 	_, _ = qs.RelatedSel("publisher").Limit(limit, offset).All(&houses)
@@ -95,7 +97,7 @@ func GetHouseByIdNoPublisher(id int64) (house models.HouseModel, err error) {
 }
 
 func GetUserHouses(UserId int64) (houses []models.HouseModel) {
-	models.OrmManager.QueryTable(models.HouseModel{}).Filter("Publisher__Id", UserId).RelatedSel("publisher").All(&houses)
+	models.OrmManager.QueryTable(models.HouseModel{}).Filter("Publisher__Id", UserId).OrderBy("-is_delicate", "-created_time").RelatedSel("publisher").All(&houses)
 	return houses
 }
 

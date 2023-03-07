@@ -27,6 +27,10 @@ func (request *Controller) HouseDetail() {
 	request.TplName = "detail.html"
 }
 
+func (request *Controller) Index() {
+	request.TplName = "index.html"
+}
+
 func (request *Controller) AskRentIndex() {
 	request.TplName = "ask_rent.html"
 }
